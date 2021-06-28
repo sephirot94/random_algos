@@ -58,7 +58,6 @@ class LinkedList:
 
         return head
 
-
     def oddEvenLinkedList(self, head: Node) -> Node:
         if not head or not head.next:
             return head
@@ -78,9 +77,6 @@ class LinkedList:
         odd.next = evenHead
 
         return oddHead
-
-
-
 
     @staticmethod
     def add_two_numbers(l1: Node, l2: Node) -> Node:
@@ -133,8 +129,8 @@ class LinkedList:
                 curr.prev = tmp
         return head
 
-    def reverseLinkedList(self, list: Node) -> Node:
-        curr = list
+    def reverse_linked_list(self, head: Node) -> Node:
+        curr = head
         prev = None
         while curr:
             cache = curr.next
@@ -144,43 +140,111 @@ class LinkedList:
 
         return prev
 
-    def isPalindrome(self, list: Node) -> bool:
-        cache = list
-        head = list
-        tail = self.reverseLinkedList(cache)
+    def reverse_linked_list_between(self, head: Node, left: int, right: int) -> Node:
+        """
+        Given the head of a singly linked list and two integers left and right where left <= right
+        reverse the nodes of the list from position left to position right, and return the reversed list.
+        :param head: head or root node of linked list to be reversed
+        :param left: start position (node index) to reverse
+        :param right:  end position (node index) to reverse
+        :return: reversed linked list head node
+        """
+        # O(n) time and O(1) space
+        if left == right:
+            return head
+        temp = Node(0)
+        temp.next = head
+        prev = temp
 
-        while head and tail:
-            if head.value != tail.value:
+        # traverse to first element of reversed portion
+        for i in range(left-1):
+            prev = prev.next
+        curr = prev.next
+        nxt = curr.next
+        # reverse portion of list
+        for i in range(right-left):
+            tmp = nxt.next
+            nxt.next = curr
+            curr = nxt
+            nxt = tmp
+
+        # correct head and tail pointers
+        prev.next.next = nxt
+        prev.next = curr
+
+        return temp.next
+
+    def is_palindrome(self, head: Node) -> bool:
+        """
+        Given a linked-list root node, verify if the list is a palindrome.
+        Palindrome can be read equally either normally of reversed.
+        :param head: head or root of linked list
+        :return: boolean indicating if list is palindrome
+        """
+        # Create slow and fast pointer to get to the end of the list quickly.
+        slow_pointer = head
+        fast_pointer = head
+        # Iterate to the end of the list.
+        # Slow pointer ends in the middle
+        while fast_pointer.next and fast_pointer.next.next:
+            slow_pointer = slow_pointer.next
+            fast_pointer = fast_pointer.next.next
+        # current node for next iteration is middle or next (odd and even linked lists work in this scenario)
+        curr = slow_pointer.next
+        prev = None
+        next_cache = None
+        # reverse second half of list to evaluate palindrome
+        while curr:
+            next_cache = curr.next
+            curr.next = prev
+            prev = curr
+            curr = next_cache
+        # Following while will break once reversed half has been traversed
+        while prev:
+            # Evaluate each node from two halves (regular and reversed)
+            if prev.val != head.val:
                 return False
+            prev = prev.next
             head = head.next
-            tail = tail.next
-
         return True
 
-    def mergeTwoLists(self, l1: Node, l2: Node) -> Node: # Resolver: Merge dos ordered linked lists y que te quede ordered
+    def mergeTwoLists(self, l1: Node, l2: Node) -> Node:
         curr = None
+        root = None
+        if not l1 and not l2:
+            return None
+        if not l1:
+            return l2
+        if not l2:
+            return l1
+
+        if l1.val <= l2.val:
+            curr = l1
+            l1 = l1.next
+        else:
+            curr = l2
+            l2 = l2.next
+
+        root = curr
         while l1 and l2:
-            if l1.value <= l2.value:
-                if curr:
-                    curr.next = l1
-                    curr = curr.next
-                    l1 = l1.next
-                else:
-                    curr = l1
-                    l1 = l1.next
+            if l1.val <= l2.val:
+                curr.next = l1
+                curr = curr.next
+                l1 = l1.next
+
             else:
-                if curr:
-                    curr.next = l2
-                    curr = curr.next
-                    l2 = l2.next
-                else:
-                    curr = l2
-                    l2 = l2.next
+                curr.next = l2
+                curr = curr.next
+                l2 = l2.next
+
         if l1:
             curr.next = l1
+            curr = curr.next
         if l2:
             curr.next = l2
+            curr = curr.next
 
-        return curr
+        return root
+
 
 

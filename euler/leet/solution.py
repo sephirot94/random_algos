@@ -1,9 +1,56 @@
 import math
+import re
 import functools as fct
+from collections import defaultdict
 
 class Solution:
 
-    def two_sum(self, nums, target):
+    def is_valid_palindrome_with_one_del(self, s:str) -> bool:
+        """
+        Given a string s, return true if the s can be palindrome
+        after deleting at most one character from it
+        :param s:
+        :return:
+        """
+        err = 0
+        start, end = 0, len(s)-1
+        while start < end:
+            while s[start] != s[end]:
+                if err == 0:  # First occurence, check moving left side
+                    start += 1
+                if err == 1:  # If it did not work, correct left side movement and move right side
+                    start -= 1
+                    end -= 1
+                err += 1  # Worst case scenario, it will equal 2 after one delete operation
+                if err > 2:  # Will be true if already deleted and still no palindrome
+                    return False
+
+            # Move pointers
+            start += 1
+            end -= 1
+        return True
+
+    def is_valid_palindrome(self, s: str) -> bool:
+        """
+        Given a string with different characters, considering only the alphanumeric ones,
+        verify string is a valid palindrome
+        :param s: string containing multiple characters
+        :return: boolean indicating if it is a valid palindrome
+        """
+        pattern = re.compile('[^a-zA-Z0-9]')
+        s = re.sub(pattern, '', s)
+        for i in range(len(s)//2):
+            if s[i].lower() != s[len(s)-i-1].lower():
+                return False
+        return True
+
+    def two_sum(self, nums: list, target: int) -> list:
+        """
+        Given an array of integers and a target, return tuple with two values which sum equals target
+        :param nums: array of integers
+        :param target: target value being searched
+        :return: tuple with two values. if not found, empty array.
+        """
         diff_map = {}
         for i, num in enumerate(nums):
             diff = target - num
@@ -15,7 +62,8 @@ class Solution:
 
     def checkPerfectNumber(self, num):
         factors = []
-        if num <= 0: return False
+        if num <= 0:
+            return False
         for i in range(1, int(math.ceil(num ** 0.5))):
             if num % i == 0:
                 factors.append(i)
@@ -44,6 +92,11 @@ class Solution:
         return res
 
     def minimumSwaps(self, arr: list) -> int:
+        """
+        Return minimum swaps required to sort an array
+        :param arr: input array to be checked
+        :return: min number of swaps required to sort the array
+        """
         m = {}
         for i, n in enumerate(arr):
             idx = m.get(i+1, 0)
@@ -55,7 +108,12 @@ class Solution:
                 m[n] = i
         return len(m)
 
-    def isBalanced(self, s: str) -> bool:
+    def is_balanced(self, s: str) -> bool:
+        """
+        Check wether a string has balanced () [] {}
+        :param s: string to check
+        :return: true if string is balanced, else false
+        """
         stack = []
 
         for char in s:
@@ -225,5 +283,233 @@ class Solution:
                 used = True
 
         return True
+
+    def check_pythagorean_triplet(self, l: list) -> bool:
+        """
+        Given a list of integers, check if exists a pythagorean triplet in array.
+        A pythagorean triplet is 3 variables a, b, c where a**2 + b**2 = c**2
+        :param l: list of integers
+        :return: boolean indicating whether pythagorean triplet exists in list
+        """
+        maximum = 0
+        # Find max element
+        for num in l:
+            maximum = max(maximum, num)
+
+        # hash array
+        h = [0] * (maximum+1)
+        # Increase the count of array elements in hash table
+        for num in l:
+            h[num] += 1
+
+        for i in range(1, maximum+1):
+            if h[i] == 0:
+                continue
+
+            for j in range(1, maximum+1):
+                # If a and b are same and there is only one a
+                # or if there is no b in original array
+                if (i == j and h[i] == 1) or h[j] == 0:
+                    continue
+                val = int(math.sqrt(i*i+j*j))
+
+                # If C is not square
+                if val*val != (i*i+j*j):
+                    continue
+
+                # If C > max
+                if val > maximum:
+                    continue
+
+                # If there is c in the original array, then True
+                if h[val]:
+                    return True
+
+        return False
+
+    def ransom_note_with_words(self, magazine: str, note: str) -> bool:
+        """
+        Given a string of magazine and a note to be written,
+        return whether is possible to write the note using the words in magazine.
+        No concatenation of substrings allowed to create words from magazine.
+        The words are case sensitive ('hello'!='Hello')
+        :param magazine: string containing words in magazine
+        :param note: string containing note to be written
+        :return: boolean indicating if it is possible to write note with words in magazine
+        """
+        d = defaultdict(lambda: None)
+        mag = magazine.split(" ")
+        note = note.split(" ")
+        for word in mag:
+            exists = d[word]
+            if exists:
+                d[word] += 1
+            else:
+                d[word] = 1
+        for word in note:
+            exists = d[word]
+            if not exists or exists == 0:
+                return False
+            else:
+                d[word] -= 1
+        return True
+
+    @staticmethod
+    def binomial_coefficient_constant_space(n: int, k: int) -> int:
+        """
+        Calculate C(n,k) where
+        C(n,k) = n! / (n-k)! * k!
+        :param n: integer n parameter in C(n,k) formula
+        :param k: integer k parameter in C(n,k) formula
+        :return: C(n,k) value for given tuple
+        """
+        # Because C(n,k) = C(n,n-k)
+        if k > n - k:
+            k = n - k
+        res = 1
+        # Calculate iteration of products
+        # [n * (n-1) *---* (n-k + 1)] / [k * (k-1) *----* 1]
+        for i in range(k):  # O(k) complexity
+            res = res * (n - i)
+            res = res / (i + 1)
+        return res
+
+    @staticmethod
+    def binomial_coefficient_recursive(n: int, k: int) -> int:
+        """
+        Calculate C(n,k) recursively given following formula:
+        C(n, k) = C(n-1, k-1) + C(n-1, k)
+        C(n, 0) = C(n, n) = 1
+        :param n: n parameter value in C(n,k) formula
+        :param k: k parameter value in C(n,k) formula
+        :return: C(n,k) for given parameters
+        """
+        if k > n:
+            return 0
+        if k == 0 or k == n:
+            return 1
+        return Solution.binomial_coefficient_recursive(n-1, k-1) + Solution.binomial_coefficient_recursive(n-1, k)
+
+    @staticmethod
+    def binomial_coefficient_dynamic(n: int, k: int) -> int:
+        """
+        Calculate C(n,k) iteratively using DP and following formula:
+        C(n, k) = C(n-1, k-1) + C(n-1, k)
+        C(n, 0) = C(n, n) = 1
+        :param n: n parameter value in C(n,k) formula
+        :param k: k parameter value in C(n,k) formula
+        :return: C(n,k) for given parameters
+        """
+        map = [[0 for x in range(k+1)] for x in range(n+1)]
+
+        for i in range(n+1):  # O(n*k) Space and Time
+            for j in range(min(i, k)+1):
+                # Base case
+                if j == 0 or j == i:
+                    map[i][j] = 1
+                else:
+                    # Use previous calculated values in map
+                    map[i][j] = map[i-1][j-1] + map[i-1][j]
+
+        return map[n][k]
+
+    @staticmethod
+    def catalan_number_recursive(n: int) -> int:
+        """
+        Return Nth catalan number (Catalan Series)
+        :param n: Sn number in Series (Nth catalan number)
+        :return: Nth number in catalan series
+
+        O(n***) -> exponential equivalent to nth catalan number
+        """
+        if n <= 1:
+            return 1
+
+        # Catalan(n) is the sum
+        # of catalan(i) * catalan(n-i-1)
+        res = 0
+        for i in range(n):
+            res += Solution.catalan_number_recursive(i) * Solution.catalan_number_recursive(n-i-1)
+        return res
+
+    @staticmethod
+    def catalan_number_dynamic(n: int) -> int:
+        """
+        Return Nth catalan number (Catalan Series)
+        :param n: Sn number in Series (Nth catalan number)
+        :return: Nth number in catalan series
+
+        O(n**2) -> exponential
+        """
+        if n <= 1:
+            return 1
+
+        dCatalan = []
+        dCatalan[0] = 1
+        dCatalan[1] = 1
+        for i in range(2, n+1):
+            for j in range(i):
+                dCatalan[i] += dCatalan[j] * dCatalan[i-j-1]
+        return dCatalan[n]
+
+    @staticmethod
+    def catalan_number_binomial(n: int) -> int:
+        """
+        Calculate catalan number using binomial coefficient
+        O(n) time complexity
+        :param n: Nth catalan number in series
+        :return: Value of Nth catalan number
+        """
+        val = Solution.binomial_coefficient_dynamic(2*n,n)
+        return val / (n+1)
+
+    @staticmethod
+    def common_substring_between_two_strings(s1: str, s2: str) -> bool:
+        """
+        Given two strings, determine if they share at least one common substring.
+        Substring can be as small as single character
+        :param s1: first string
+        :param s2: second string
+        :return: boolean indicating if they share a common substring
+        """
+        d = defaultdict(lambda: None)
+        for char in s1:
+            if d[char]:
+                d[char] += 1
+            else:
+                d[char] = 1
+        for char in s2:
+            if d[char]:
+                return True
+
+        return False
+
+    @staticmethod
+    def min_edit_distance(s1: str, s2: str) -> int:
+        """
+        Given two strings, determine the edit distance between them.
+        The edit distance is defined as the minimum number of edits (insertion, deletion, or substitution)
+        needed to change one string to the other
+        :param s1: first string
+        :param s2: second string
+        :return:  minimum number of edits to change s1 into s2 and viceversa
+        """
+        size1, size2 = len(s1), len(s2)
+        dp = [[0 for x in range(size2+1)] for x in range(size1+1)]
+        for i in range(size1+1):
+            for j in range(size2+1):
+                if i == 0:
+                    dp[i][j]=j
+                elif j == 0:
+                    dp[i][j] = i
+                elif s1[i-1] == s2[j-1]:
+                    dp[i][j] = dp[i-1][j-1]
+                else:
+                    dp[i][j] = 1 + min(dp[i][j-1], dp[i-1][j], dp[i-1][j-1])
+        return dp[size1][size2]
+
+        return edits
+
+
 
 
