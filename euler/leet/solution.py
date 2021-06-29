@@ -1,4 +1,6 @@
 import math
+import ast
+import operator
 import re
 import functools as fct
 from collections import defaultdict
@@ -510,6 +512,36 @@ class Solution:
 
         return edits
 
+    @staticmethod
+    def evaluate_math_expr(expr: str) -> int:
+        operators = {
+            ast.Add: operator.add,
+            ast.Sub: operator.sub,
+            ast.USub: operator.neg
+        }
+
+        def eval_(node):
+            if isinstance(node, ast.Num):  # Case of number
+                return node.n
+            if isinstance(node, ast.BinOp):  # Binary operator <left> <operator> <right>
+                return operators[type(node.op)](eval_(node.left), eval_(node.right))
+            if isinstance(node, ast.UnaryOp): # Unary operator. e.g. -1
+                return operators[type(node.op)](eval_(node.operand))
+            else:
+                raise TypeError(node)
+
+        return eval_(ast.parse(expr, mode='eval').body)
+
+    @staticmethod
+    def staircase(n: int) -> int:
+        """
+        Given a positive integer N, representing the number of steps in a staircase,
+        you can either climb 1 or 2 steps at a time.
+        Calculate the number of unique ways to climb the stairs
+        :param n: Positive integer representing number of steps in staricase
+        :return: integer representing unique ways to climb the stairs
+        """
+        
 
 
 
