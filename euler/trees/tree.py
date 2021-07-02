@@ -80,7 +80,7 @@ class Tree(TreeNode):
         :return: inorder traversal of tree
         """
         if self.root is None:
-            return
+            return []
         curr = self.root
         stack = []
         resp = []
@@ -104,7 +104,7 @@ class Tree(TreeNode):
         """
         return self.post_order(root.left) + self.post_order(root.right) + [root.val] if root else []
 
-    def post_order_iteratively(self):
+    def post_order_iterative(self):
         """
         Iteratively traverse tree post order
         :return: post order tree traversal
@@ -130,7 +130,7 @@ class Tree(TreeNode):
     def breath_first_search_iterative(self):
         """
         Given a root of tree, return the traversal of tree breath-first.
-        In other words, traverse each level of leaves in the following order:
+        In other words, traverse each level of nodes in the following order:
         root -> root's children -> root's grandchildren -> ... -> root's Nth great grandchildren
         :return: bfs traversal of tree
         """
@@ -329,7 +329,7 @@ class Tree(TreeNode):
         """
         stack = [self.root]
         leaves = []
-        while len(stack) > 0:
+        while stack:
             n = stack.pop()
             if n.right:
                 stack.append(n.right)
@@ -338,3 +338,53 @@ class Tree(TreeNode):
             if not n.left and not n.right:
                 leaves.append(n.val)
         return leaves
+
+    def recover_tree_from_pre_traversal(self, traversal: str) -> TreeNode:
+        """
+        We run a preorder depth-first search (DFS) on the root of a binary tree. At each node in this traversal,
+        we output D dashes (where D is the depth of this node), then we output the value of this node.  If the depth of
+        a node is D, the depth of its immediate child is D + 1.  The depth of the root node is 0. If a node has only one
+        child, that child is guaranteed to be the left child. Given the output traversal of this traversal, recover the
+        tree and return its root.
+        :param traversal: string containing traversal with dashes
+        :return: root node of recovered tree
+        """
+        # O(n) Time and Space
+        def helper(tree_str, curr):
+            if len(tree_str) == 0:
+                return None
+            # construct value of the current node
+            node = ""
+            i = 0
+            for s in tree_str:
+                if s.isdigit():
+                    node += s
+                else:
+                    break
+                i += 1
+            node = TreeNode(int(node))
+            # Evaluate the new level at which the next node will be attached
+            # to do this iterate starting from - till int is encountered
+            new_lvl = 0
+            j = 0
+            for s in tree_str[i:]:
+                if s.isdigit():
+                    break
+                else:
+                    new_lvl += 1
+
+            # if the new level is greater than curr we have to recursively go to the next level
+            if new_lvl > curr:
+                r_tree_str, r_new_lvl, node.left = helper(tree_str[i+j:], curr+1)
+            # this means the new_lvl is less than curr, so return back till curr < new_lvl
+            else:
+                return (tree_str[i+j:], new_lvl, node)
+
+            # Now we have to deal with the right node
+            if r_new_lvl > curr:
+                r_tree_str, r_new_lvl, node.right = help(r_tree_str, curr+1)
+
+            return (r_tree_str, r_new_lvl, node)
+
+        _, _, root = helper(traversal, 0)
+        return root

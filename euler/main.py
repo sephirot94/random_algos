@@ -1,34 +1,40 @@
-from heap.heapster import smallest_subset
-from lists.LinkedList import LinkedList, Node
-from trees.tree import TreeNode, Tree
-from trees.binary_search import BST
-from leet.solution import Solution
 import math
+
+
+def max_number_lectures(arrival, duration):
+    """
+    Given an array contianing time of arrival and another array containing duration of stay,
+    determine how many lectures can be made in single room without two occuring at same time
+    :param arrival: array containing time of arrival for each participant
+    :param duration: array containing duration of each participant's lecture
+    :return: max number of lectures that can occur in a single day
+    """
+    # O(nlogn) Time
+    ans = 0
+
+    # Sorting of meeting according to
+    # their finish time.
+    zipped = zip(arrival, duration)
+    zipped = list(zipped)
+    zipped.sort(key=lambda x: x[0] + x[1])
+
+    # Initially select first meeting
+    ans += 1
+    # time_limit to check whether new
+    # meeting can be conducted or not.
+    time_limit = zipped[0][0] + zipped[0][1]
+
+    # Check for all meeting whether it
+    # can be selected or not.
+    for i in range(1, len(arrival)):
+        if zipped[i][0] > time_limit:
+            ans += 1
+            time_limit = zipped[i][0] + zipped[i][1]
+
+    return ans
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # head = Node(1, next=Node(2, next=Node(3, next=Node(4, next=Node(5)))))
-    # head = Node(1, next=Node(1, next=Node(2, next=Node(1))))
-    # ll = LinkedList()
-    # n = ll.isPalindrome(head)
-    sol = Solution()
-    # print(sol.is_valid_palindrome("ab_a"))
-    # root = TreeNode('a', TreeNode('b', TreeNode('c'), TreeNode('d')), TreeNode('e', TreeNode('f'), TreeNode('g')))
-    root = TreeNode(5, TreeNode(1), TreeNode(4, TreeNode(3), TreeNode(6)))
-    tree = Tree(root)
-    bst = BST(root)
-    arr = []
-    # arr.append(1)
-    # arr.append(2)
-    # arr.append(3)
-    print(arr)
-    # print(arr[0])
-    # print(arr[-1])
-    print(arr)
-
-    # print(sol.check_pythagorean_triplet([3,2,4,6]))
-    # print(sol.check_array_non_decreasing([13,4,1]))
-    # print(bst.insert_value_iterative(9).__str__())
-    # print(sol.ransom_note_with_words("two times three is not four", "two times two is four"))
-    # print(tree.check_tree_is_BST(root))
-    # print(tree.pre_order_iterative_memory_improvement(tree.root))
+    arrival = [978, 409, 229, 934, 299, 982, 636, 14, 866, 815, 64, 537, 426, 670, 116, 95, 630]
+    duration = [502, 518, 196, 106, 405, 452, 299, 189, 124, 506, 883, 753, 567, 717, 338, 439, 145]
+    print(max_number_lectures(arrival, duration))
