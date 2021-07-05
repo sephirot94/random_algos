@@ -1329,6 +1329,42 @@ class Solution:
 
         return ans
 
+    @staticmethod
+    def evaluate_bracket_pairs(s: str, knowledge: list) -> str:
+        """
+        Given a string with the format '(name) is mike' and a list containing tuples meant for a key value pair in hashm
+        where [['name', mike']], return the evaluation of the string 'mike is mike' resulting from checking key inside
+        parentheses. If key is not found, print ? instead. i.e. '? is mike'
+        :param s: string to evaluate
+        :param knowledge: known key pairs
+        :return: evaluated string
+        """
+        # Create dictionary
+        d = {}
+        for pair in knowledge:  # O(k) where k = len(knowledge)
+            d[pair[0]] = pair[1]
+
+        output = ''
+        stack = []
+        use_stack = False
+        for i in range(len(s)):
+            if s[i] == "(":
+                use_stack = True
+            elif s[i] == ")":
+                key = ''.join(stack)
+                if key in d:
+                    output += d[key]
+                else:
+                    output += "?"
+                stack = []
+                use_stack = False
+            else:
+                if use_stack:
+                    stack.append(s[i])
+                else:
+                    output += s[i]
+        return output
+
 
 class TopVotedCandidate:
     def __init__(self, persons: list, times: list):
