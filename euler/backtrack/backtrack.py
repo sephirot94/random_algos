@@ -1,3 +1,39 @@
+class BackTracker:
+
+    def solve(self, values: list, safe_up_to, size) -> list:
+        """
+        Finds a solution to a backtracking problem.
+        :param values: a sequence of values to try, in order. For a map coloring problem, this may be a list of colors,
+         such as ['red', 'green', 'yellow', 'purple']
+        :param safe_up_to: a function with two arguments, solution and position, that returns whether the values
+         assigned to slots 0..pos in the solution list, satisfy the problem constraints.
+        :param size: the total number of “slots” you are trying to fill
+        Return the solution as a list of values.
+        """
+        solution = [None] * size
+
+        def extend_solution(position):
+            for value in values:
+                solution[position] = value
+                if safe_up_to(solution, position):
+                    if position >= size - 1 or extend_solution(position + 1):
+                        return solution
+            return None
+
+        return extend_solution(0)
+
+    # Call using
+    def no_adjacencies(self, string, up_to_index):
+        # See if the sequence filled from indices 0 to up_to_index, inclusive, is
+        # free of any adjancent substrings. We'll have to try all subsequences of
+        # length 1, 2, 3, up to half the length of the string. Return False as soon
+        # as we find an equal adjacent pair.
+        length = up_to_index + 1
+        for j in range(1, length // 2 + 1):
+            if (string[length - 2 * j:length - j] == string[length - j:length]):
+                return False
+        return True
+
 class KnightProblem:
 
     def __init__(self):
@@ -155,3 +191,4 @@ class RatInMaze:
             # If nothing worked, then backtrack and unmark i, j as part of solution
             sol[i][j] = 0
             return False
+

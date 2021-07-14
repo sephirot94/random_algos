@@ -247,4 +247,52 @@ class LinkedList:
         return root
 
 
+class SnapshotArray:
 
+    def __init__(self, length: int):
+        self.d = {}
+        self.snap_d = {}
+        self.snap_times = -1
+
+    def set(self, index: int, val: int) -> None:
+        self.d[index] = val
+
+    def snap(self) -> int:
+        self.snap_times += 1
+        self.snap_d[self.snap_times] = self.d.copy()
+        return self.snap_times
+
+    def get(self, index: int, snap_id: int) -> int:
+        if snap_id in self.snap_d:
+            d_at_snap = self.snap_d[snap_id]
+            if index in d_at_snap:
+                return d_at_snap[index]
+        return 0
+
+class LinkedListCyclic:
+    def __init__(self):
+        self.head = None
+        self.last_node = None
+
+    def add_vals(self, data):
+        if not self.last_node:
+            self.head = Node(data)
+            self.last_node = self.last_node.next
+
+    def get_node_val(self, index: int):
+        curr = self.head
+        for i in range(index):
+            curr = curr.next
+            if not curr:
+                return None
+            return curr
+
+    def check_cycle(self, arr: list) -> bool:
+        slow = arr.head
+        fast = arr.head
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+            if slow == fast:
+                return True
+            return False
