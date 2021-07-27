@@ -1072,7 +1072,7 @@ class Solution:
         return None
 
     @staticmethod
-    def knapsack(maxW: int, wt: list, val: list, n: int) -> int:
+    def knapsack_whole(maxW: int, wt: list, val: list, n: int) -> int:
         """
         Given weights and values of n items, put these items in a knapsack of capacity W to get the maximum total value
         in the knapsack. In other words, given two integer arrays val[0..n-1] and wt[0..n-1]
@@ -1364,6 +1364,160 @@ class Solution:
                 else:
                     output += s[i]
         return output
+
+    def min_product_subset_in_array(self, arr: list) -> int:
+        """
+        Given an array a, we have to find the minimum product possible with the subset of elements present in the array.
+        The minimum product can be a single element also.
+        :param arr:
+        :param n:
+        :return:
+        """
+        # O(n) Time and O(1) Space
+        if not arr:
+            return None
+
+        n = len(arr)
+        if (n == 1):
+            return arr[0]
+
+        # Find count of negative numbers,
+        # count of zeros, maximum valued
+        # negative number, minimum valued
+        # positive number and product
+        # of non-zero numbers
+        max_neg = float('-inf')
+        min_pos = float('inf')
+        count_neg = 0
+        count_zero = 0
+        prod = 1
+        for i in range(0, n):
+
+            # If number is 0, we don't
+            # multiply it with product.
+            if (arr[i] == 0):
+                count_zero = count_zero + 1
+                continue
+
+            # Count negatives and keep
+            # track of maximum valued
+            # negative.
+            if (arr[i] < 0):
+                count_neg = count_neg + 1
+                max_neg = max(max_neg, arr[i])
+
+            # Track minimum positive
+            # number of array
+            if (arr[i] > 0):
+                min_pos = min(min_pos, arr[i])
+
+            prod = prod * arr[i]
+
+        # If there are all zeros
+        # or no negative number
+        # present
+        if count_zero == n or (count_neg == 0 and count_zero > 0):
+            return 0
+
+        # If there are all positive
+        if count_neg == 0:
+            return min_pos
+
+        # If there are even number of
+        # negative numbers and count_neg
+        # not 0
+        if ((count_neg & 1) == 0 and
+                count_neg != 0):
+            # Otherwise result is product of
+            # all non-zeros divided by
+            # maximum valued negative.
+            prod = int(prod / max_neg)
+
+        return prod
+
+    def max_product_subset_in_array(self, arr: list) -> int:
+        """
+        Given an array a, we have to find maximum product possible with the subset of elements present in the array.
+        The maximum product can be single element also.
+        """
+        # O(n) Time and O(1) Space
+        n = len(arr)
+        # Find count of negative numbers, count
+        # of zeros, negative number
+        # with least absolute value
+        # and product of non-zero numbers
+        max_neg = -999999999999
+        count_neg = 0
+        count_zero = 0
+        prod = 1
+        for i in range(n):
+
+            # If number is 0, we don't
+            # multiply it with product.
+            if arr[i] == 0:
+                count_zero += 1
+                continue
+
+            # Count negatives and keep
+            # track of negative number
+            # with least absolute value.
+            if arr[i] < 0:
+                count_neg += 1
+                max_neg = max(max_neg, arr[i])
+
+            prod = prod * arr[i]
+
+        # If there are all zeros
+        if count_zero == n:
+            return 0
+
+        # If there are odd number of
+        # negative numbers
+        if count_neg & 1:
+
+            # Exceptional case: There is only
+            # negative and all other are zeros
+            if (count_neg == 1 and count_zero > 0 and
+                    count_zero + count_neg == n):
+                return 0
+
+            # Otherwise result is product of
+            # all non-zeros divided
+            # by negative number
+            # with least absolute value
+            prod = int(prod / max_neg)
+
+        return prod
+
+    def isLongPressedName(self, name: str, typed: str) -> bool:
+        # cover the case: that the name and typed are equal, e.g., "laiden", "laiden"
+        if name == typed:
+            return True
+
+        # Note that it is necessary to have both strings ending the same. E.g., "alex", "alexxr"
+
+        if typed[-1] != name[-1]:
+            return False
+
+        # Index of the name char in string typed, the very first time iteration it's always zero
+        idx = -1
+
+        # Memorize the previous char in string name, starting from the first char in string name
+        prev = name[0]
+
+        # Iterate the string name. Make the decision on the fly.
+        for char in name:
+            if (char in typed):
+                idx = typed.index(char)
+                if idx > 0:
+                    for i in range(0, idx):
+                        if typed[i] != prev:
+                            return False
+                typed = typed[(idx + 1):]
+                prev = char
+            else:
+                return False
+        return True
 
 
 class TopVotedCandidate:

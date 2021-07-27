@@ -388,3 +388,167 @@ class Tree(TreeNode):
 
         _, _, root = helper(traversal, 0)
         return root
+
+
+class Trie:
+    class Node:
+        def __init__(self, char: str, isWord=False):
+            self.char = char
+            self.isWord = isWord
+            self.children = {}
+
+    def __init__(self):
+        self.root = self.Node("*", isWord=True)
+
+    def insert(self, word: str):
+        """
+        Insert new word in Trie data structure
+        """
+        curr = self.root  # start from root
+        for letter in word:  # Iterate through characters of word
+            if letter not in curr.children.keys():  # If it is a new character
+                new_node = self.Node(letter)  # Create a new node with letter
+                curr.children[letter] = new_node  # Add character as child of current node
+            curr = curr.children[letter]  # Move pointer to next node
+        curr.isWord = True  # After adding the word, assign boolean to last node
+
+    def search(self, word: str) -> bool:
+        """
+        Search word inside Trie data structure
+        """
+        curr = self.root  # Start from root
+        for letter in word:  # Iterate through the word
+            if letter not in curr.children:  # If character is not a node, return false
+                return False
+            curr = curr.children[letter]  # Move pointer
+        return curr.isWord  # return if last character represents a word in Trie DS
+
+    def starts_with(self, prefix: str) -> bool:
+        """
+        Check if any word inside the Trie starts with given prefix
+        """
+        curr = self.root
+        for char in prefix:
+            if char not in curr.children:
+                return False
+            curr = curr.children[char]
+        return True
+
+    def remove(self, word: str):
+        """
+        Delete a word from Trie data structure
+        """
+        stack = []
+        curr = self.root
+        for letter in word:
+            if letter not in curr.children:
+                return
+            curr = curr.children[letter]
+            stack.append(curr)
+        curr.isWord = False
+        curr = stack.pop()
+        while stack:
+            node = stack.pop()
+            if not bool(curr.children) and not curr.isWord:
+                del node.children[curr.char]
+                curr = node
+            else:
+                break
+        return
+
+
+class AhoCorasick:
+    table = {}
+
+    class Node:
+        def __init__(self,id: int, value: any):
+            self.id = id
+            self.value = value
+            self.next_states = {}
+            self.fail_state = 0
+            self.isFinal = False
+            self.output = set()
+
+        def __str__(self):
+            print(f"State: {self.id} \n"
+                  f"Value: {self.value} \n"
+                  f"Next States: { self.next_states.keys()} \n"
+                  f"Failure: {self.fail_state} \n")
+
+            if self.isFinal:
+                print(f"Output: {self.output}")
+
+            for node in self.next_states.keys():
+                s = self.next_states[node]
+                s.__str__()
+
+        def goto(self, key: int):
+            return self.next_states.get(key)
+
+        def add_output(self, key):
+            self.output.add(key)
+
+    def __init__(self):
+        self.root = self.Node(0, None)
+        self.table[0] = self.root
+        self.id = 0
+
+    def add_word(self, word: str):
+        curr = self.root
+        for letter in word:
+            if not curr.next_states.get(letter):
+                self.id += 1
+                curr.next_states[letter] = self.Node(self.id, letter)
+                self.table[self.id] = curr.next_states[letter]
+            curr = curr.next_states[letter]
+
+        curr.isFinal = True
+        curr.output.add(letter)
+
+    def set_failure(self):
+        queue = deque()
+        curr = self.root
+        for key in self.root.next_states:
+            queue.append(self.root.next_states[key])
+
+        while queue:
+            curr_dq = queue.popleft()
+            for key in curr_dq.next_states:
+                queue.append(curr_dq.next_states[key])
+                tmp = curr_dq.next_states[key]
+                id = curr_dq.fail_state
+                val = tmp.value
+                curr = self.table[id]
+
+                while True:
+                    if not curr.goto(val) and curr.id != 0:
+                        new_id = curr.fail_state
+                        curr = self.table[new_id]
+                    else:
+                        break
+                    child =  curr.goto(val)
+                    if child is None:
+                        tmp.fail_state = curr.id
+                    else:
+                        tmp.fail_state = child.id
+
+                    tmp.add_output(self.table[tmp.fail_state].output)
+
+    def find_string(self, str):
+        curr = self.root
+
+        for key in str:
+            while True:
+                if curr.goto(key) is None and curr.id != 0:
+                    curr = self.table[curr.fail_state]
+                else:
+                    child = curr.goto(key)
+                    break
+            if child:
+                curr = child
+                if child.output:
+                    print(f"Id {child.id}, {child.output}")
+
+    def display(self):
+        self.root.__str__()
+
