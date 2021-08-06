@@ -503,6 +503,42 @@ class BST:
             else:
                 prev.left = None
 
+        if not curr.left:  # If only child is right
+            tmp = curr.right
+            curr = None
+            if prev.val < tmp.val:
+                prev.right = tmp
+            else:
+                prev.left = tmp
+
+        if not curr.right:  # If only child is left
+            tmp = curr.left
+            curr = None
+            if prev.val < tmp.val:
+                prev.right = tmp
+            else:
+                prev.left = tmp
+
+        # If both children exist, find succesor
+        succ_parent = curr
+        succ = curr.right
+
+        while succ.left:  # Find smallest element bigger than eliminated node
+            succ_parent = succ
+            succ = succ.left
+
+        if succ_parent != curr:
+            succ_parent.left = succ.right
+        else:
+            succ_parent.right = succ.right
+
+        curr.val = succ.val
+        return
+
+
+
+
+
 
 class Trie:
     class Node:
