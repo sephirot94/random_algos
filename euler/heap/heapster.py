@@ -2,6 +2,11 @@ import heapq
 import math
 from collections import deque, defaultdict
 
+class HeapNode:
+    def __init__(self, val: int, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
 
 class KthLargest(object):
     def __init__(self, k: int, nums: list):
@@ -28,6 +33,7 @@ class KthLargest(object):
         heapq.heapify(nums)
         hq = heapq.nlargest(k, nums)
         return hq.pop()
+
 
 class CustomHeap:
     def __init__(self):
@@ -131,6 +137,169 @@ class CustomHeap:
             return True
         return False
 
+
+class KClosestPointToOrigin:
+
+    def kClosestPointToOrigin(self, points: list, k: int) -> list:
+        """
+        Given an array of points (x,y) representing coordinates in 2D, return the K points that are closest to origin
+        """
+        d = {tuple(point): self.getDistance(point) for point in points}
+        res = []
+        for p, _ in heapq.nsmallest(k, d.items(), key=lambda p: p[1]):
+            res.append(list(p))
+        return res
+
+    def getDistance(self, point: list) -> float:
+        return math.sqrt((point[0])**2 + (point[1])**2)
+
+
+class MinHeap:
+    """
+    Heaps always have the following condition:
+    Given an array, if node= arr[i] then left child of node is at  arr[2*i+1] and right child at arr[2*i+2]
+    """
+    def __init__(self, arr: list=None):
+        if not arr:
+            self.heap = []
+            return
+        start_idx = len(arr)//2 - 1  # Last non-leaf node
+        for i in range(start_idx, 0, -1):  # Reverse level order traversal of heap
+            self.heapify(arr, i)
+
+        self.heap = arr
+
+    def swap(self, node1, node2):
+        """
+        Swaps two nodes in place
+        """
+        self.heap[node1], self.heap[node2] = self.heap[node2], self.heap[node1]
+
+    def heapify(self, arr: list, idx: int):
+        """
+        Given an array, generate a min-heap. In a min-heap, smallest element is always at root.
+        :param arr: list to heapify
+        :param idx: index to heapify
+        :return: heapify list
+        """
+        if not arr:
+            return None
+
+        smallest = idx
+        left = 2*idx + 1
+        right = 2*idx + 2
+
+        if left < len(arr) and arr[left] < arr[smallest]:  # If left is smaller than smallest
+            smallest = left
+
+        if right < len(arr) and arr[right] < arr[smallest]:  # If right is smaller than smallest
+            smallest = right
+
+        if smallest != idx:  # If smallest value has changed
+            arr[idx], arr[smallest] = arr[smallest], arr[idx]  # Switch items
+            self.heapify(arr, smallest)  # Recursively call heapify on array
+
+        return arr
+
+    def peek_smallest(self) -> int:
+        """
+        Returns smallest element in the heap
+        """
+        return self.heap[0] if self.heap else None
+
+    def pop_smallest(self) -> int:
+        """
+        Returns the smallest element and pops it from the array
+        :return: Smallest element in heap
+        """
+        if not self.heap:
+            return None
+        resp = self.heap.pop(0)
+
+        self.heapify(self.heap, len(self.heap)-1)
+
+        return resp
+
+    def insert(self, value: int):
+        """
+        Inserts value in the heap
+        :param value: value to be inserted
+        """
+        self.heap.append(value)
+
+        last = len(self.heap)-1
+
+        while self.heap[last] < self.heap[last//2]:  # While new node is smaller than parent
+            self.swap(last, last//2)  # Swap nodes
+            last = last//2  # Continue while loop
+
+
+class MaxHeap:
+
+    def __init__(self, arr: list=None):
+        if not arr:
+            self.heap = []
+            return
+        start_idx = len(arr) // 2 - 1
+        for i in range(start_idx, 0, -1):
+            self.heapify(arr, i)
+        self.heap = arr
+
+    def swap(self, node1: int, node2: int):
+        self.heap[node1], self.heap[node2] = self.heap[node2], self.heap[node1]
+
+    def heapify(self, arr: list, idx: int):
+        if not arr:
+            return None
+        largest = idx
+        left = 2*idx+1
+        right = 2*idx+2
+
+        if left < len(arr) and arr[left] > arr[largest]:
+            largest = left
+
+        if right < len(arr) and arr[right] > arr[largest]:
+            largest = right
+
+        if largest != idx:
+            self.swap(idx, largest)
+            self.heapify(arr, largest)
+
+        return arr
+
+    def peek_largest(self) -> int:
+        """
+        Returns the largest element in heap without popping
+        :return: largest element in heap
+        """
+        if not self.heap:
+            return None
+        return self.heap[0]
+
+    def pop_largest(self) -> int:
+        """
+        Pops and returns largest element, mutating the heap.
+        :return: largest element in heap
+        """
+        if not self.heap:
+            return None
+        resp = self.heap.pop(0)
+        self.heapify(self.heap, len(self.heap)-1)
+        return resp
+
+    def insert(self, value: int):
+        """
+        Inserts a new value in the heap
+        :param value: value to be inserted
+        """
+        self.heap.append(value)
+        last = len(self.heap)-1
+
+        while self.heap[last] > self.heap[last//2]:
+            self.swap(last, last//2)
+            last = last//2
+
+
 def smallest_subset(s: list) -> list:
     """
     Given an array of integer, return the smallest subset where sum(subset) > sum(rest_of_nums)
@@ -170,21 +339,6 @@ def topKFrequentElementInArray(nums: list, k: int) -> list:
     while heap:
         resp.append(heapq.heappop(heap)[1])
     return resp
-
-class KClosestPointToOrigin:
-
-    def kClosestPointToOrigin(self, points: list, k: int) -> list:
-        """
-        Given an array of points (x,y) representing coordinates in 2D, return the K points that are closest to origin
-        """
-        d = {tuple(point): self.getDistance(point) for point in points}
-        res = []
-        for p, _ in heapq.nsmallest(k, d.items(), key=lambda p: p[1]):
-            res.append(list(p))
-        return res
-
-    def getDistance(self, point: list) -> float:
-        return math.sqrt((point[0])**2 + (point[1])**2)
 
 def lengthOfLongestSubStringwithoutRepeating(s: str) -> int:
     """
