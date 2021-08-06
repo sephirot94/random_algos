@@ -390,6 +390,108 @@ class Tree(TreeNode):
         return root
 
 
+class BST:
+
+    def __init__(self, root: TreeNode):
+        self.root = root
+
+    def in_order_traversal(self) -> list:
+        if not self.root:
+            return []
+
+        stack = []
+        resp = []
+        curr = self.root
+
+        while True:
+            if curr:
+                stack.append(curr)
+                curr = curr.left
+            elif stack:
+                curr = stack.pop()
+                resp.append(curr.val)
+                curr = curr.right
+            else:
+                break
+
+        return resp
+
+    def sorted_array_to_bst(self, arr: list) -> TreeNode:
+        """
+        Given a sorted array as input, return root node of BST formed from array
+        """
+        if not arr:
+            return None
+
+        mid = len(arr)//2
+        left = arr[:mid]
+        right = arr[mid+1:]
+
+        node = TreeNode(arr[mid])
+        node.left = self.sorted_array_to_bst(left)
+        node.right = self.sorted_array_to_bst(right)
+
+        return node
+
+    def search(self, target: int) -> TreeNode:
+        """
+        Given a target value, find if a node exists in BST containing that value
+        """
+        if not self.root:
+            return None
+
+        curr = self.root
+
+        while curr:
+            if target == curr.val:
+                return curr
+            if target < curr.val:
+                curr = curr.left
+            if target > curr.val:
+                curr = curr.right
+
+        return None
+
+    def insert(self, node: TreeNode):
+        """
+        Given a node, insert it in the BST
+        """
+        if not self.root:
+            self.root = node
+            return
+        curr = self.root
+        while curr:
+            prev = curr
+            if curr.val == node.val:
+                return
+            if curr.val < node.val:
+                curr = curr.right
+            if curr.val > node.val:
+                curr = curr.left
+
+        if node.val < prev.val:
+            prev.left = node
+        else:
+            prev.right = node
+
+        return
+
+    def remove(self, node: TreeNode):
+        """
+        Given an element, remove it from the BST
+        """
+        if not self.root:
+            return
+
+        curr = self.root
+        while curr:
+            prev = curr
+
+
+
+
+
+
 class Trie:
     class Node:
         def __init__(self, char: str, isWord=False):
