@@ -484,12 +484,24 @@ class BST:
             return
 
         curr = self.root
-        while curr:
-            prev = curr
+        while curr:  # Traverse until we find node to be deleted
+            if curr.val < node.val:
+                prev = curr
+                curr = curr.right
+            if curr.val > node.val:
+                prev = curr
+                curr = curr.left
+            else:
+                break;
 
+        if not curr:  # If node not found, return
+            return
 
-
-
+        if not curr.left and not curr.right:  # If node has no childs, delete
+            if prev.val < curr.val:
+                prev.right = None
+            else:
+                prev.left = None
 
 
 class Trie:
