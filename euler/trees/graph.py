@@ -1,6 +1,6 @@
 import sys
 from collections import defaultdict
-from euler.heap.heapster import CustomHeap
+from heap.heapster import CustomHeap
 
 
 class FindConnectedComponents:

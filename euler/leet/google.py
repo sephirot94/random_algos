@@ -1,7 +1,7 @@
 import sys
 from functools import reduce
 
-from euler.trees.tree import TreeNode
+from trees.tree import TreeNode
 import collections
 
 class GraphNode:

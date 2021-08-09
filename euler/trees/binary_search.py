@@ -1,7 +1,7 @@
 import sys
-from collections import deque
 
 from trees.tree import Tree, TreeNode
+
 
 # NOTES
 # Inorder traversal of BST always produces sorted output
@@ -11,6 +11,21 @@ class BST(Tree):
 
     def __init__(self, root: TreeNode):
         self.root = root
+
+    def __str__(self):
+        """Prints nodes preorder"""
+        # traverse tree inorder and print
+        if not self.root:  # base case
+            return
+        stack = [self.root]
+        while stack:
+            curr = stack.pop()
+            print(curr.val)
+            if curr.right:
+                stack.append(curr.right)
+            if curr.left:
+                stack.append(curr.left)
+
 
     def search_value(self, value: int) -> TreeNode:
         """
@@ -234,7 +249,7 @@ class BST(Tree):
 
         return invert_recursive_helper(self.root)
 
-    def minDiffInBST(self, root: TreeNode) -> int:
+    def min_difference_in_bst(self, root: TreeNode) -> int:
         """
         Given the root of a Binary Search Tree (BST), return the minimum difference
         between the values of any two different nodes in the tree.
@@ -258,6 +273,55 @@ class BST(Tree):
             prev = cur.val
             cur = cur.right
         return diff
+
+    def largest_bst_in_binary_tree(self, root: TreeNode) -> TreeNode:
+        """
+        Returns the root node of the largest subtree in given tree which is a valid Binary Search Tree
+        """
+        if not root:  # Base case
+            return None
+
+        # in order traversal to get array
+        arr = []
+        stack = []
+        curr = root
+        while True:
+            if curr:
+                stack.append(curr)
+                curr = curr.left
+            elif stack:
+                curr = stack.pop()
+                arr.append(curr.val)
+                curr = curr.right
+            else:
+                break
+
+        # find longest sorted sub-array in array
+        head = 0
+        max_size = 0
+        longest_sorted = []
+        for i in range(1, len(arr)):
+            if arr[i] < arr[i-1]:  # if not sorted
+                if len(arr[head:i]) > max_size:
+                    longest_sorted = arr[head:i]
+                    max_size = len(longest_sorted)
+                    head = i+1 if i+1 < len(arr) else 0  # if out of bounds, nullify head variable since it's useless
+
+        # convert sub-array into a BST
+        new_root = self.make_bst_from_inorder(longest_sorted)
+        return new_root
+
+    def make_bst_from_inorder(self, arr: list) -> TreeNode:
+        """
+        Returns root node of BST composed of the inorder traversal from the array
+        """
+        if not arr:
+            return None
+        mid = len(arr)//2
+        root = TreeNode(arr[mid])
+        root.left = self.make_bst_from_inorder(arr[:mid])
+        root.right = self.make_bst_from_inorder(arr[mid+1:])
+        return root
 
     @staticmethod
     def make_BST_from_preorder_traversal(pre: list) -> TreeNode:
@@ -312,7 +376,8 @@ class BST(Tree):
     def unique_bst(n: int) -> int:
         """
         Function uses Catalan Number Series to find how many unique bsts can be made with n keys
-        The number of binary search trees that will be formed with N keys can be calculated by simply evaluating the corresponding number in Catalan Number series.
+        The number of binary search trees that will be formed with N keys can be calculated by simply evaluating
+        the corresponding number in Catalan Number series.
         First few Catalan numbers for n = 0, 1, 2, 3, … are 1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862, …
         Catalan numbers satisfy the following recursive formula:
 

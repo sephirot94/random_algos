@@ -13,9 +13,20 @@ class TreeNode(object):
         print(f"Right: {self.right.val if self.right else ''}")
 
 
-class Tree(TreeNode):
+class Tree:
     def __init__(self, root: TreeNode):
         self.root = root
+
+    def __str__(self):
+        """Prints tree in preorder traversal"""
+        if not self.root:
+            return
+        stack = [self.root]
+        while stack:
+            curr = stack.pop()
+            print(curr.val)
+            stack.append(curr.right) if curr.right else None
+            stack.append(curr.left) if curr.left else None
 
     def pre_order(self, root):
         """
@@ -112,9 +123,8 @@ class Tree(TreeNode):
         if self.root is None:
             return
         mainStack = []
-        auxStack = []
+        auxStack = [self.root]
         resp = []
-        auxStack.append(self.root)
         while auxStack:
             node = auxStack.pop()
             mainStack.append(node.val)
