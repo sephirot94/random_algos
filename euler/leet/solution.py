@@ -1,3 +1,4 @@
+import collections
 import heapq
 import math
 import ast
@@ -11,6 +12,40 @@ from itertools import permutations
 
 
 class Solution:
+
+    def group_anagrams(self, arr: list[str]) -> list:
+        """
+        Returns a list with grouped anagrams (words made up of the same letters)
+        """
+        # Time complexity is O(NMlogM) Where N = len(arr) and M=len(word) for word in arr
+        res = []
+        d = collections.defaultdict(list)
+        for word in arr:  # Generate a Hashmap storing all words that are anagrams
+            d[str(sorted(word))].append(word)
+
+        for group in d.values():
+            res.append(group)
+
+        return res
+
+    def min_remove_to_valid_parenth(self, s: str) -> int:
+        """
+        Returns the minimum removals to be made for the string to contain valid set of parenthesis
+        :param s: string containing parenthesis
+        :return: integer with minimum removals that must be made for string to be valid
+        """
+        stack = []
+        res = 0
+        for char in s:
+            if char == '(':
+                stack.append(char)
+            if char == ')':
+                open = stack.pop() if stack else None
+                if not open:
+                    res += 1
+
+        return res + len(stack)
+
 
     def is_valid_palindrome_with_one_del(self, s:str) -> bool:
         """
@@ -221,7 +256,7 @@ class Solution:
 
         return 0
 
-    def sort_nums(self, l: list) -> list:
+    def sort_colors(self, l: list) -> list:
         """
         Given an array with 3 unique values (1,2,3) return the ordered list in place (Dutch National Flag Problem)
 

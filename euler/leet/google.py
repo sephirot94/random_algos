@@ -1,7 +1,13 @@
 import sys
 
-from trees.tree import TreeNode
+from euler.trees.tree import TreeNode
 import collections
+
+class GraphNode:
+    def __init__(self, edge: int, neighbors: list):
+        self.edge = edge
+        self.neighbors = neighbors
+
 
 class Node:
     def __init__(self, word="", depth=-1, children=None):
@@ -11,7 +17,158 @@ class Node:
 INT_MIN = -2**32
 MTX_MAX = 20
 
+
+class FindIslands:
+    def __init__(self, matrix: list):
+        self.matrix = matrix
+        self.visited = set()
+
+    def is_valid(self, i, j):
+        return 0 <= i < len(self.matrix) \
+               and 0 <= j < len(self.matrix[i])
+
+    def dfs_util(self, i, j):
+        """
+        Runs DFS until a 0 (water) is found
+        """
+        self.visited.add((i, j))
+        if self.matrix[i][j] == 0:  # If water is found
+            return
+        neighbors = [(i-1,j), (i+1, j), (i, j-1), (i, j+1)]
+        for x, y in neighbors:  # Check all neighbors
+            if (x, y) not in self.visited and self.is_valid(x, y):  # If not visited and valid
+                self.dfs_util(x, y)  # Run DFS search on neighbor
+
+
+    def find_islands(self) -> int:
+        """
+        Returns the number of islands in a 2D array conatining 1s and 0s.
+        An island is a 1 with all adjacent nodes == 0.
+        Adj nodes are up, left, right, and down. No diagonal neighbor considered.
+        Assume all edges outside the grid are water.
+        :param mtx: 2D array with 1s and 0s
+        :return: number of islands present in matrix
+        """
+        islands = 0
+        if not self.matrix:
+            return islands
+        for row in range(len(self.matrix)):
+            for col in range(len(self.matrix[row])):
+                if self.matrix[row][col] == 1 and (row, col) not in self.visited:
+                    self.dfs_util(row, col)
+                    islands +=1
+        return islands
+
+
+class FindConnectedComponents:
+
+    def __init__(self, V: int):
+        self.vertices = V
+        self.graph = [[] * self.V]
+
+    def add_edge(self, u, v):
+        self.graph[u].append(v)
+        self.graph[v].append(u)
+
+    def dfs(self, arr: list, v: int, visited: int) -> list:
+        """
+        Returns an array of the components from DFS traversal.
+        :param arr: array to traverse
+        :param v: current vertex
+        :param visited: visited array tracking previously visited nodes
+        :return: list containing connected components (neighbors)
+        """
+        visited[v] = True  # mark node as visited
+        arr.append(v)  # store the visited node to track connected nodes
+        for i in self.graph[v]:  # iterate through adjacent nodes (neighbors)
+            if not visited[i]:  # If neighbor has not been visited
+                arr = self.dfs(arr, i, visited)
+
+        return arr
+
+    def find_connected_components(self) -> list:
+        """
+        Returns a list containing the connected components in the graph
+        :return: list cointaining the sets of connected components (or connected nodes)
+        """
+        visited = [False for i in range(self.V)]
+        connected = []
+        for v in range(self.V):
+            if not visited[v]:
+                arr = []
+                connected.append(self.dfs(arr, v, visited))
+
+        return connected
+
+
+
+
 class Google:
+
+    def reverse_words(self, s: str) -> str:
+        """
+        Returns the string with all its words reversed. White spaces are maintained
+        :param s: string with words
+        :return: string with reversed words
+        """
+        q = collections.deque([])
+        stack = []
+        res = ""
+        for word in s.split(" "):  # form queue of reversed words to be appended to result
+            w = ""
+            # reverse the word
+            for char in word:
+                stack.append(char)
+            while stack:
+                char = stack.pop()
+                w += char
+            q.append(w)  # append reversed word to q
+
+        while q:  # Iterate through queue and form res string
+            word = q.popleft()
+            res += f"{word} "
+
+        if res:  # Clean last white space
+            res = res[:-1]
+
+        return res
+
+    def room_scheduling(self, arr: list) -> int:
+        """
+        Returns the number of rooms required to hold meetings given a list of tuples (start, end)
+        representing time intervals for lectures. The intervals may be overlapping.
+        :param arr: list of tuples (start, end) with time intervals of meetings
+        :return: min number of rooms required to hold all meetings
+        """
+        # Time complexity O(n*m) Where n = len(arr) and m = len(res)
+        res = []
+
+        for tuple in arr:  # O(n)
+            new_room = True
+            if not res:
+                res.append([tuple])
+                continue
+            for scheduled in res:  # O(m)
+                if scheduled[-1][1] <= tuple[0]:  # If latest scheduled meeting ends before tuple starts
+                    scheduled.append(tuple)
+                    new_room = False
+                    break  # No need to continue looping the scheduled meetings
+                else:
+                    if scheduled[-1][0] >= tuple[1]:  # If latest scheduled meeting starts after current ends
+                        scheduled.insert(0, tuple)
+                        new_room = False
+                        break
+            if new_room:  # If i need a new room to hold te meeting
+                res.append([tuple])
+
+        return len(res)
+
+    def running_median(self, arr: list) -> list:
+        """
+        Returns a list computing the running median, which is the median of the list with each new element.
+        :param arr:
+        :return:
+        """
 
     def decompress_compress_string(self, arr: str) -> str:
         """
@@ -375,188 +532,3 @@ class urlShortener:
                 id = id * 62 + val_i - ord('0') + 52
         return id
 
-class AhoCorasickGeeksForGeeks:
-    """
-    Given an input text and an array of k words, arr[], find all occurrences of all words in the input text.
-    Let n be the length of text and m be the total number characters in all words, i.e. m = length(arr[0]) +
-    length(arr[1]) + … + length(arr[k-1]). Here k is total numbers of input words.
-    """
-    # Aho-Corasick Algorithm finds all words in O(n + m + z) time where z is total number of occurrences of words
-    def __init__(self, words):
-
-        # Max number of states in the matching machine. Should be equal to the sum of the length of all keywords.
-        self.max_states = sum([len(word) for word in words])
-
-        # Maximum number of characters. Currently supports only alphabets [a,z]
-        self.max_characters = 26
-
-        # OUTPUT FUNCTION IS IMPLEMENTED USING out []
-        # Bit i in this mask is 1 if the word with
-        # index i appears when the machine enters this state.
-        # Lets say, a state outputs two words "he" and "she" and
-        # in our provided words list, he has index 0 and she has index 3
-        # so value of out[state] for this state will be 1001
-        # It has been initialized to all 0.
-        # We have taken one extra state for the root.
-        self.out = [0] * (self.max_states + 1)
-
-        # FAILURE FUNCTION IS IMPLEMENTED USING fail []
-        # There is one value for each state + 1 for the root
-        # It has been initialized to all -1
-        # This will contain the fail state value for each state
-        self.fail = [-1] * (self.max_states + 1)
-
-        # GOTO FUNCTION (OR TRIE) IS IMPLEMENTED USING goto [[]]
-        # Number of rows = max_states + 1
-        # Number of columns = max_characters i.e 26 in our case
-        # It has been initialized to all -1.
-        self.goto = [[-1] * self.max_characters for _ in range(self.max_states + 1)]
-
-        # Convert all words to lowercase
-        # so that our search is case insensitive
-        for i in range(len(words)):
-            words[i] = words[i].lower()
-
-        # All the words in dictionary which will be used to create Trie
-        # The index of each keyword is important:
-        # "out[state] & (1 << i)" is > 0 if we just found word[i]
-        # in the text.
-        self.words = words
-
-        # Once the Trie has been built, it will contain the number
-        # of nodes in Trie which is total number of states required <= max_states
-        self.states_count = self.__build_matching_machine()
-
-    # Builds the String matching machine.
-    # Returns the number of states that the built machine has.
-    # States are numbered 0 up to the return value - 1, inclusive.
-    def __build_matching_machine(self):
-        k = len(self.words)
-
-        # Initially, we just have the 0 state
-        states = 1
-
-        # Convalues for goto function, i.e., fill goto
-        # This is same as building a Trie for words[]
-        for i in range(k):
-            word = self.words[i]
-            current_state = 0
-
-            # Process all the characters of the current word
-            for character in word:
-                ch = ord(character) - 97  # Ascii valaue of 'a' = 97
-
-                # Allocate a new node (create a new state)
-                # if a node for ch doesn't exist.
-                if self.goto[current_state][ch] == -1:
-                    self.goto[current_state][ch] = states
-                    states += 1
-
-                current_state = self.goto[current_state][ch]
-
-            # Add current word in output function
-            self.out[current_state] |= (1 << i)
-
-        # For all characters which don't have
-        # an edge from root (or state 0) in Trie,
-        # add a goto edge to state 0 itself
-        for ch in range(self.max_characters):
-            if self.goto[0][ch] == -1:
-                self.goto[0][ch] = 0
-
-        # Failure function is computed in
-        # breadth first order using a queue
-        queue = []
-
-        # Iterate over every possible input
-        for ch in range(self.max_characters):
-
-            # All nodes of depth 1 have failure
-            # function value as 0. For example,
-            # in above diagram we move to 0
-            # from states 1 and 3.
-            if self.goto[0][ch] != 0:
-                self.fail[self.goto[0][ch]] = 0
-                queue.append(self.goto[0][ch])
-
-        # Now queue has states 1 and 3
-        while queue:
-
-            # Remove the front state from queue
-            state = queue.pop(0)
-
-            # For the removed state, find failure
-            # function for all those characters
-            # for which goto function is not defined.
-            for ch in range(self.max_characters):
-
-                # If goto function is defined for
-                # character 'ch' and 'state'
-                if self.goto[state][ch] != -1:
-
-                    # Find failure state of removed state
-                    failure = self.fail[state]
-
-                    # Find the deepest node labeled by proper
-                    # suffix of String from root to current state.
-                    while self.goto[failure][ch] == -1:
-                        failure = self.fail[failure]
-
-                    failure = self.goto[failure][ch]
-                    self.fail[self.goto[state][ch]] = failure
-
-                    # Merge output values
-                    self.out[self.goto[state][ch]] |= self.out[failure]
-
-                    # Insert the next level node (of Trie) in Queue
-                    queue.append(self.goto[state][ch])
-
-        return states
-
-    # Returns the next state the machine will transition to using goto
-    # and failure functions.
-    # current_state - The current state of the machine. Must be between
-    #             0 and the number of states - 1, inclusive.
-    # next_input - The next character that enters into the machine.
-    def __find_next_state(self, current_state, next_input):
-        answer = current_state
-        ch = ord(next_input) - 97  # Ascii value of 'a' is 97
-
-        # If goto is not defined, use
-        # failure function
-        while self.goto[answer][ch] == -1:
-            answer = self.fail[answer]
-
-        return self.goto[answer][ch]
-
-    # This function finds all occurrences of all words in text.
-    def search_words(self, text):
-        # Convert the text to lowercase to make search case insensitive
-        text = text.lower()
-
-        # Initialize current_state to 0
-        current_state = 0
-
-        # A dictionary to store the result.
-        # Key here is the found word
-        # Value is a list of all occurrences start index
-        result = collections.defaultdict(list)
-
-        # Traverse the text through the built machine
-        # to find all occurrences of words
-        for i in range(len(text)):
-            current_state = self.__find_next_state(current_state, text[i])
-
-            # If match not found, move to next state
-            if self.out[current_state] == 0: continue
-
-            # Match found, store the word in result dictionary
-            for j in range(len(self.words)):
-                if (self.out[current_state] & (1 << j)) > 0:
-                    word = self.words[j]
-
-                    # Start index of word is (i-len(word)+1)
-                    result[word].append(i - len(word) + 1)
-
-        # Return the final result dictionary
-        return result

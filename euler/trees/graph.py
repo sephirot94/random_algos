@@ -1,6 +1,157 @@
 import sys
 from collections import defaultdict
-from heap.heapster import CustomHeap
+from euler.heap.heapster import CustomHeap
+
+
+class CustomNodeIslands:
+    def __init__(self, id: str, val: int):
+        self.id = id
+        self.val = val
+
+
+class CustomGraph:  # Used in Number of islands
+
+    def __init__(self, V: int):
+        self.vertices = V
+        self.adj = defaultdict(list)
+
+    def add_edge(self, u: CustomNodeIslands, v: CustomNodeIslands):
+        """
+        Adds edge to graph
+        """
+        self.adj[u.id].append(v)
+        self.adj[v.id].append(u)
+
+    def check_boundary(self, i, j, visited, mtx):
+        return i < len(mtx) and j < len(mtx[i]) and mtx[i][j] and not visited[i][j]
+
+    def convert_mtx_to_graph(self, mtx: list):
+        """
+        Converts given matrix to a graph
+        """
+        if not mtx:
+            return None
+        visited = [[False for col in mtx] for row in mtx]
+
+        self.vertices = len(mtx)
+
+        for i in range(len(mtx)):
+            for j in range(len(mtx[i])):
+                visited[i][j] = True
+                node = CustomNodeIslands(str(i) + str(j), mtx[i][j])
+                if self.check_boundary(i+1, j, visited, mtx):
+                    neighbor = CustomNodeIslands(str(i+1) + str(j), mtx[i+1][j])
+                    self.add_edge(node, neighbor)
+                    visited[i+1][j]
+                if self.check_boundary(i-1, j, visited, mtx):
+                    neighbor = CustomNodeIslands(str(i - 1) + str(j), mtx[i - 1][j])
+                    self.add_edge(node, neighbor)
+                    visited[i - 1][j]
+                if self.check_boundary(i, j+1, visited, mtx):
+                    neighbor = CustomNodeIslands(str(i) + str(j+1), mtx[i][j+1])
+                    self.add_edge(node, neighbor)
+                    visited[i][j+1]
+                if self.check_boundary(i, j-1, visited, mtx):
+                    neighbor = CustomNodeIslands(str(i) + str(j-1), mtx[i][j-1])
+                    self.add_edge(node, neighbor)
+                    visited[i][j-1]
+
+
+class CheckStronglyConnected:
+    """Implementation of Kosaraju's algorithm for strongly connected components"""
+
+    def __init__(self, V: int):
+        self.vertices = V  # number of vertices
+        self.graph = defaultdict(list)
+
+    def add_edge(self, u: int, v: int):
+        self.graph[u].append(v)
+
+    def dfs(self, vertex: int, visited: list):
+        visited[vertex] = True  # set current vertex as visited
+        for i in self.graph:  # traverse graph
+            if not visited[i]:  # if not visited
+                self.dfs(i, visited)  # visit it
+
+    def dfs_scc(self, v: int, visited: list, scc_arr: list) -> list:
+        """Returns array with strongly connected components"""
+        visited[v] = True
+        scc_arr.append(v)
+        for i in self.graph[v]:  # traverse all neighbors
+            if not visited[v]:  # If not visited
+                self.dfs_scc(i, visited, scc_arr)
+
+        return scc_arr
+
+
+    def transpose(self):
+        """
+        Returns transponse (or reversed) graph
+        """
+        transposed = CheckStronglyConnected(self.vertices)
+        for i in self.graph:
+            for j in self.graph[i]:
+                transposed.add_edge(j, i)  # traverse graph and reverse it in g
+
+        return transposed
+
+    def fill_order(self, v, visited, stack):
+        visited[v] = True  # mark node as visited
+        for i in self.graph[v]:
+            if not visited[i]:
+                self.fill_order(i, visited, stack)
+
+        stack.append(v)
+
+    def check_strongly_connected(self) -> bool:
+        """
+        Checks whether graph is strongly connected
+        """
+        # Time complexity is O(V+E)
+        # Step 1: Mark all vertices as not visited
+        visited = [False for i in range(self.vertices)]
+
+        #Step 2: traverse graph with DFS starting from first vertex
+        self.dfs(0, visited)
+        for i in visited:  # Check all nodes have been visited, otherwise not strongly connected
+            if not i:
+                return False
+
+        # Step 3: Create reversed graph
+        gr = self.transpose()
+
+        # Step 4: Mark all vertices as not visited (for second DFS)
+        visited = [False for i in range(self.vertices)]
+
+        # Step 5: Do DFS for reversed graph, starting from same vertex as before
+        gr.dfs(0, visited)
+
+        for i in visited:  # Check all nodes have been visited, otherwise not strongly connected
+            if not i:
+                return False
+
+        return True
+
+    def find_all_strongly_connected(self):
+        scc = []
+        stack = []
+        visited = [False for i in range(self.vertices)]
+        for i in range(self.vertices):  # DFS traversal appending to stack
+            self.fill_order(i, visited, stack)
+
+        reversed = self.transpose()  # reverse graph
+
+        visited = [False for i in range(self.vertices)]  # mark all vertices as not visited for second DFS
+        while stack:  # process in order defined by stack (get SCC)
+            vertex = stack.pop()
+            if not visited[vertex]:
+                scc_arr = []
+                reversed.dfs_scc(vertex, visited, scc_arr)
+                scc.append(scc_arr)
+
+        return scc
+
+
 
 
 class GraphAdjMatrix:
@@ -123,6 +274,7 @@ class CyclicUndirGraphWithUnionFind:
     # function to add an edge to graph
     def addEdge(self, u, v):
         self.graph[u].append(v)
+        self.graph[v].append(u)
 
     # A utility function to find the subset of an element i
     def find_parent(self, parent, i):

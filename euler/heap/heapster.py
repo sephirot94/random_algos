@@ -215,9 +215,11 @@ class MinHeap:
         if not self.heap:
             return None
         resp = self.heap.pop(0)
+        arr = self.heap
+        for i in range(len(arr)//2 - 1, 0, -1):
+            arr = self.heapify(arr, i)
 
-        self.heapify(self.heap, len(self.heap)-1)
-
+        self.heap = arr
         return resp
 
     def insert(self, value: int):
