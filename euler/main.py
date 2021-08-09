@@ -10,18 +10,16 @@ from euler.searching.pattern import KMPPatternSearch, FiniteAutomataPatternSearc
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-   aho = AhoCorasickPatternSearching()
-   print(aho.search("aab", "aaaabaaabaaaaabaabaaabaaaaabbbaaaab"))
+   # aho = AhoCorasickPatternSearching()
+   # print(aho.search("aab", "aaaabaaabaaaaabaabaaabaaaaabbbaaaab"))
 
-
-   # arr = [1,4,2,5,3,6,9,7]
    # mtx = [[0,1,1,0], [1,0,0,1], [0,1,1,0], [1,0,0,0]]
    # # mh = MinHeap(arr)
-   # ggl = Google()
+   ggl = Google()
    # sol = Solution()
    # island_finder = FindIslands(mtx)
    # print(island_finder.find_islands())
-   # print(compute_series(100))
+   print(ggl.product_array_except_index([1,2,3,4,5]))
 
    # g = CheckStronglyConnected(5)
    # g.add_edge(1, 0)

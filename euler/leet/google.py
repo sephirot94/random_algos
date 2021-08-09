@@ -1,4 +1,5 @@
 import sys
+from functools import reduce
 
 from euler.trees.tree import TreeNode
 import collections
@@ -60,50 +61,54 @@ class FindIslands:
         return islands
 
 
-class FindConnectedComponents:
-
-    def __init__(self, V: int):
-        self.vertices = V
-        self.graph = [[] * self.V]
-
-    def add_edge(self, u, v):
-        self.graph[u].append(v)
-        self.graph[v].append(u)
-
-    def dfs(self, arr: list, v: int, visited: int) -> list:
-        """
-        Returns an array of the components from DFS traversal.
-        :param arr: array to traverse
-        :param v: current vertex
-        :param visited: visited array tracking previously visited nodes
-        :return: list containing connected components (neighbors)
-        """
-        visited[v] = True  # mark node as visited
-        arr.append(v)  # store the visited node to track connected nodes
-        for i in self.graph[v]:  # iterate through adjacent nodes (neighbors)
-            if not visited[i]:  # If neighbor has not been visited
-                arr = self.dfs(arr, i, visited)
-
-        return arr
-
-    def find_connected_components(self) -> list:
-        """
-        Returns a list containing the connected components in the graph
-        :return: list cointaining the sets of connected components (or connected nodes)
-        """
-        visited = [False for i in range(self.V)]
-        connected = []
-        for v in range(self.V):
-            if not visited[v]:
-                arr = []
-                connected.append(self.dfs(arr, v, visited))
-
-        return connected
-
-
-
-
 class Google:
+
+    def product_array_except_index(self, arr: list) -> list:
+        """
+        Returns a list containing at index the product of all the elements except the one at that given index
+        in the original array. Division cannot be used in this case (cannot get total product and divide at each index).
+        :param arr: list of integers. i.e. : [1,2,3,4,5]
+        :return: list of integers with product of array except index. i.e. : [120, 60, 40, 30, 24]
+        """
+        resp = []
+        for i, num in enumerate(arr):
+            left_half = arr[:i]  # split array in half and omit element at index
+            right_half = arr[i+1:]
+            # since 1 is neutral in multiplication problems, use in case either half is empty
+            left_val = reduce((lambda x, y: x*y), left_half) if left_half else 1
+            right_val = reduce((lambda x, y: x * y), right_half) if right_half else 1
+            resp.append(left_val*right_val)  # append the multiplication of both halves
+
+        return resp
+
+
+
+
+    def merge_list_numbers_into_ranges(self, arr: list) -> list:
+        """
+        Returns a list containing the ranges of all consecutive elements in a sorted array. for example:
+        Input: [0, 1, 2, 5, 7, 8, 9, 9, 10, 11, 15]
+        Output: ['0->2', '5->5', '7->11', '15->15']
+        :param arr: list of sorted integers
+        :return: list containing ranges
+        """
+        if not arr:
+            return []
+        resp = []
+        prev = -1
+        for i in range(len(arr)):
+            if prev == -1:  # if searching prev, assign and continue
+                prev = arr[i]
+                continue
+            if arr[i]-1 != arr[i-1] and arr[i] != arr[i-1]:  # If not consecutive and not equal
+                s = f"{prev}->{arr[i-1]}"  # generate string
+                resp.append(s)  # append to result
+                prev = arr[i]  # reset prev for next search
+
+        s = f"{prev}->{arr[len(arr)-1]}"  # handle last case
+        resp.append(s)  # append to result
+
+        return resp
 
     def reverse_words(self, s: str) -> str:
         """

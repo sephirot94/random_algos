@@ -3,6 +3,47 @@ from collections import defaultdict
 from euler.heap.heapster import CustomHeap
 
 
+class FindConnectedComponents:
+
+    def __init__(self, V: int):
+        self.vertices = V
+        self.graph = [[] * self.V]
+
+    def add_edge(self, u, v):
+        self.graph[u].append(v)
+        self.graph[v].append(u)
+
+    def dfs(self, arr: list, v: int, visited: int) -> list:
+        """
+        Returns an array of the components from DFS traversal.
+        :param arr: array to traverse
+        :param v: current vertex
+        :param visited: visited array tracking previously visited nodes
+        :return: list containing connected components (neighbors)
+        """
+        visited[v] = True  # mark node as visited
+        arr.append(v)  # store the visited node to track connected nodes
+        for i in self.graph[v]:  # iterate through adjacent nodes (neighbors)
+            if not visited[i]:  # If neighbor has not been visited
+                arr = self.dfs(arr, i, visited)
+
+        return arr
+
+    def find_connected_components(self) -> list:
+        """
+        Returns a list containing the connected components in the graph
+        :return: list cointaining the sets of connected components (or connected nodes)
+        """
+        visited = [False for i in range(self.V)]
+        connected = []
+        for v in range(self.V):
+            if not visited[v]:
+                arr = []
+                connected.append(self.dfs(arr, v, visited))
+
+        return connected
+
+
 class CustomNodeIslands:
     def __init__(self, id: str, val: int):
         self.id = id
