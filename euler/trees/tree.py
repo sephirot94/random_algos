@@ -55,6 +55,45 @@ class Tree:
                 q.append(node.right)
         return resp
 
+    def arithmetic_tree(self, root: TreeNode) -> int:
+        """
+        Returns the integer resulting in the solution of arithmetic expression given by tree
+        """
+        if not root:
+            return 0
+
+        if isinstance(root.val, int):  # check if value at node is integer
+            return root.val
+
+        elif root.val == "+":  # case + operator
+            left = right = 0  # 0 is neutral in + and - operations
+            if root.left:
+                left = self.arithmetic_tree(root.left)
+            if root.right:
+                right = self.arithmetic_tree(root.right)
+            return left + right
+        elif root.val == "-":  # case - operator
+            left = right = 0  # 0 is neutral in - operation
+            if root.left:
+                left = self.arithmetic_tree(root.left)
+            if root.right:
+                right = self.arithmetic_tree(root.right)
+            return left - right
+        elif root.val == "*":  # case * operator
+            left = right = 1  # 1 is neutral in * operation
+            if root.left:
+                left = self.arithmetic_tree(root.left)
+            if root.right:
+                right = self.arithmetic_tree(root.right)
+            return left * right
+        elif root.val == "/":  # case / operator
+            left = right = 1  # 1 is neutral in division
+            if root.left:
+                left = self.arithmetic_tree(root.left)
+            if root.right:
+                right = self.arithmetic_tree(root.right)
+            return int(left//right)
+
     def count_number_unival_trees(self) -> int:
         """
         Returns number of unival trees present in tree. Unival trees are those with all elements being equal.

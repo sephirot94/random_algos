@@ -93,6 +93,33 @@ class FindIslands:
 
 class Google:
 
+    def sum_bit_difference(self, arr: list) -> int:
+        """
+        Returns the sum of bit differences in all pairs that can be formed from array elements. Bit difference of a pair
+        (x, y) is count of different bits at same positions in binary representations of x and y.
+        For example, bit difference for 2 and 7 is 2. Binary representation of 2 is 010 and 7 is 111
+        """
+        if not arr:  # base check valid input
+            return 0
+        ans = 0  # initialize answer
+        # solve this problem in O(n) time using the fact that all numbers are represented using 32 bits
+        # The idea is to count differences at individual bit positions
+        for i in range(32):  # traverse from 0 to 31 and count numbers with i’th bit set
+            # There would be “n - count” numbers with i’th bit not set.
+            # So count of differences at i’th bit would be “count * (n-count) * 2”.
+            # the reason for this formula is as every pair having one element which has set bit at i’th position
+            # and second element having unset bit at i’th position contributes exactly 1 to sum,
+            # therefore total permutation count will be count * (n-count) and multiply by 2 is due to one more
+            # repetition of all this type of pair as per given condition for making pair 1 <= i, j <= N.
+            count = 0
+            for j in range(len(arr)):
+                if arr[j] and 1 << i:
+                    count += 1
+
+            ans += 2 * count * (len(arr)-count)
+
+        return ans
+
     def longest_substring_with_k_unique_characters(self, s: str, k: int) -> int:
         """
         Returns the size of the longest substring with k unique characters

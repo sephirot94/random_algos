@@ -19,19 +19,16 @@ if __name__ == '__main__':
    # print(sorted(arr, key=lambda d: d['char'], reverse=True))
    g = Google()
 
-   root = TreeNode(0,
-                   left=TreeNode(1),
-                   right=TreeNode(0,
-                                  left=TreeNode(1,
-                                                left=TreeNode(1),
-                                                right=TreeNode(1)
-                                                ),
-                                  right=TreeNode(0)
-                                  )
-
+   root = TreeNode('*',
+                   left=TreeNode("+",
+                                 left=TreeNode(3),
+                                 right=TreeNode(2)),
+                   right=TreeNode("+",
+                                  left=TreeNode(4),
+                                  right=TreeNode(5))
                    )
    t = Tree(root)
-   print(t.count_number_unival_trees())
+   print(1<<0)
 
 
 
