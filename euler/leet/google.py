@@ -4,6 +4,36 @@ from functools import reduce
 from trees.tree import TreeNode
 import collections
 
+
+class CustomAlphabet:
+
+    def __init__(self, alphabet: str):
+        d = {}
+        for i, char in enumerate(alphabet):
+            d[char] = i
+        self.alphabet = d
+
+    def is_sorted(self, word: str) -> bool:
+        if word == "":  # base case empty input
+            return True
+
+        for i in range(1, len(word)):  # iterate word
+            if not self.alphabet.get(word[i], None) \
+                    or not self.alphabet.get(word[i - 1]):  # skip character if not in alphabet
+                continue
+            else:
+                if self.alphabet[word[i]] < self.alphabet[word[i - 1]]:
+                    return False
+        return True
+
+    def is_sorted_with_array(self, arr: list) -> bool:
+        for word in arr:
+            is_sorted = self.is_sorted(word)
+            if not is_sorted:
+                return False
+        return True
+
+
 class GraphNode:
     def __init__(self, edge: int, neighbors: list):
         self.edge = edge
@@ -63,6 +93,97 @@ class FindIslands:
 
 class Google:
 
+    def longest_substring_with_k_unique_characters(self, s: str, k: int) -> int:
+        """
+        Returns the size of the longest substring with k unique characters
+        """
+        if s == "":
+            return 0
+
+        d = collections.defaultdict(lambda: 0)
+        for char in s:  # create mapping of qty of characters
+            d[char] += 1
+
+        if len(d) < k:  # not enough unique characters
+            return 0
+
+        curr_start = curr_end = 0
+        max_window_size = 1
+
+        window_uniques = collections.defaultdict(lambda: 0)
+        window_uniques[s[curr_start]] += 1
+
+        for i in range(1, len(s)):
+            window_uniques[s[i]] += 1  # add one count to the character
+            curr_end += 1  # add one size to the window
+            while len(window_uniques) > 3:  # if window is too big, recur and shrink
+                window_uniques[s[curr_start]] -= 1
+                if window_uniques[s[curr_start]] == 0:
+                    window_uniques.pop(s[curr_start])
+                curr_start += 1  # increment a pointer to the start of window
+
+            if curr_end-curr_start+1 > max_window_size:  # if current window is bigger than max window so far
+                max_window_size = curr_end-curr_start+1  # adding one since keeping track of pointers here
+
+        return max_window_size
+
+
+
+
+    def longest_increasing_subsequence(self, arr: list) -> int:
+        """
+        Returns the longest increasing subsequence in a list of integers
+        """
+        # Algorithm has O(nlogn) time complexity
+        if not arr:  # base check
+            return 0
+
+        def find_ceil(arr: list, low: int, high: int, target: int):
+
+            while high - low > 1:
+                mid = low + (high - low) // 2
+                if arr[mid] >= target:
+                    high = mid
+                else:
+                    low = mid
+            return high
+
+        tail_tracker = [0 for i in range(len(arr)+1)]
+        tail_tracker[0] = arr[0]  # add first element as tail and start recurring
+        pointer = 1
+        for i in range(1, len(arr)):  # start at 1 since we have already extracted first element
+            if arr[i] < tail_tracker[0]:  # new smallest element found
+                tail_tracker[0] = arr[i]  # replace smallest element
+            elif arr[i] > tail_tracker[pointer-1]:  # if bigger, extend current subsequence
+                tail_tracker[pointer] = arr[i]
+                pointer += 1
+            else:  # current element is candidate to end an existing subsequence
+                tail_tracker[find_ceil(tail_tracker, -1, pointer-1, arr[i])] = arr[i]  # replace ceil in tracker
+
+        return pointer
+
+
+
+    def find_intersection_between_arrays(self, arr1: list, arr2: list):
+        """
+        Returns the intersection between two arrays.In other words, the elements present in both arrays
+        """
+
+        if not arr1 or not arr2:
+            return []
+
+        d = {}  # dictionary stores elements in first array
+        resp = []
+        for num in arr1:  # create dictionary
+            d[num] = True
+
+        for num in arr2:  # Check the intersection
+            found = d.get(num, False)
+            if found:
+                resp.append(num)
+
+        return resp
+
     def product_array_except_index(self, arr: list) -> list:
         """
         Returns a list containing at index the product of all the elements except the one at that given index
@@ -81,8 +202,29 @@ class Google:
 
         return resp
 
-
-
+    def find_triplets_summing_zero(self, nums: list) -> list:
+        """
+        Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k,
+        and j != k, and nums[i] + nums[j] + nums[k] == 0.
+        Notice that the solution set must not contain duplicate triplets
+        """
+        nums.sort()  # O(nlogn)
+        added = set()
+        out = []
+        for i in range(len(nums) - 1, -1, -1):  # reverse iteration
+            last = nums[i]  # last evaluated
+            start, end = 0, i - 1  # start from bottom until you reach previous element in array
+            while start < end:  # inner loop from start to finish
+                target = last + nums[start] + nums[end]  # searched value
+                if target == 0:  # if we have found it
+                    if (last, nums[start], nums[end]) not in added: out.append([last, nums[start], nums[end]])
+                    added.add((last, nums[start], nums[end]))  # add triplet to set, avoid duplicates
+                    start += 1  # continue with next element
+                elif target > 0:  # if target is too big, then decrease last pointer (since sorted)
+                    end -= 1
+                else:  # if target is too small, then increase bottom pointer (since sorted)
+                    start += 1
+        return out
 
     def merge_list_numbers_into_ranges(self, arr: list) -> list:
         """

@@ -330,23 +330,27 @@ class BST(Tree):
         :param pre: preorder traversal of binary seearch tree
         :return: root of BST
         """
-        # Base case
-        if not pre:
-            return None
-        # create a stack and append first element of pre as root
-        root = TreeNode(pre[0])
-        s = [root]
-        # Iterate through rest of the size-1 items of given preorder array
-        for idx in range(1, len(pre)):
-            temp = None
-            # Keep on popping while the next value is greater than stack's top value
-            while s and pre[idx] > s[-1]:  # this will peek the top element
-                temp = s.pop()
-            # Make this greater value as the right child and push it to the stack
-            if temp:
-                temp.right = TreeNode(pre[idx])
-                s.append(temp.right)
-        return root
+        def recursive_helper(pre: list, idx: int=0, minimum=-sys.maxsize, maximum = sys.maxsize):
+            if idx >= len(pre):
+                return None, idx
+            root_val = pre[idx]
+            if root_val < min or root_val > max:  # return if next element not in valid range
+                return None, idx
+            root = TreeNode(root_val)  # construct root node
+            idx += 1  # increment pointer in array (next element)
+
+            # Since all elements in the left subtree of a BST must be less
+            # than the root node's value, set range as [min, root_val-1] and recur
+            root.left, idx = recursive_helper(pre, idx, minimum, root_val-1)
+
+            # Since all elements in the right subtree of a BST must be greater
+            # than the root node's value, set range as [root_val+1…max] and recur
+            root.right, idx = recursive_helper(pre, idx, root_val+1, maximum)
+
+            return root, idx
+
+        return recursive_helper(pre)[0]
+
 
     @staticmethod
     def min_value(node: TreeNode) -> TreeNode:

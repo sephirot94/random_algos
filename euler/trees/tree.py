@@ -1,11 +1,13 @@
+import collections
 from collections import deque
 
 
 class TreeNode(object):
-    def __init__(self, x, left=None, right=None):
+    def __init__(self, x, left=None, right=None, height: int=0):
         self.val = x
         self.left = left
         self.right = right
+        self.height = height
 
     def __str__(self):
         print(f"Value: {self.val}")
@@ -27,6 +29,59 @@ class Tree:
             print(curr.val)
             stack.append(curr.right) if curr.right else None
             stack.append(curr.left) if curr.left else None
+
+    def bt_values_at_height(self, height: int) -> list:
+        """
+        Returns list with values at given height
+        """
+        # O(n) time and space complexity
+        if not self.root:  # base check valid input
+            return []
+        self.root.height = 0  # init height as 0 for root
+        resp = []
+        q = collections.deque([self.root])
+        while q:  # BFS until q is empty or forced break
+            node = q.popleft()
+            lvl = node.height
+            if lvl > height:  # if lvl has been passed and all elements in resp, break
+                break
+            if lvl == height:  # if node is at searched height
+                resp.append(node.val)
+            if node.left:
+                node.left.height = node.height + 1  # init children height as curr+1
+                q.append(node.left)
+            if node.right:
+                node.right.height = node.height + 1  # init children height as curr+1
+                q.append(node.right)
+        return resp
+
+    def count_number_unival_trees(self) -> int:
+        """
+        Returns number of unival trees present in tree. Unival trees are those with all elements being equal.
+        A sub tree can be any node where all its children have same value as root.
+        """
+        def count_unival_recursive(root: TreeNode, count: list) -> bool:
+            if not root:  # leaf nodes all are considered unival trees
+                return True
+            left = count_unival_recursive(root.left, count)
+            right = count_unival_recursive(root.right, count)
+            if not left or not right:  # if either children are false (not univals)
+                return False
+            if root.left and root.val != root.left.val:  # case left child is not same as root
+                return False
+            if root.right and root.val != root.right.val:  # case right child is not same as root
+                return False
+
+            # If we reach here, means all checks have passed.
+            count[0] += 1
+            return True
+
+        if not self.root:
+            return 0
+
+        count = [0]
+        count_unival_recursive(self.root, count)
+        return count[0]
 
     def pre_order(self, root):
         """
@@ -154,6 +209,88 @@ class Tree:
             if node.right:
                 queue.append(node.right)
         return resp
+
+    def make_tree_from_preorder_inorder(self, preorder: list, inorder: list) -> TreeNode:
+        """
+        Returns root node of tree formed from given preorder and inorder traversals.
+        Assumes the traversals are correct.
+        """
+        def recursive_helper(d: dict, preorder: list, inorder: list) -> TreeNode:
+            if not preorder or not inorder:
+                return None
+            root = TreeNode(preorder[0])
+            preorder.pop(0)  # eliminate value from array
+            root_inorder_idx = d.get(root.val, None)
+            if root_inorder_idx:
+                left_side = inorder[:root_inorder_idx] if root_inorder_idx > 0 else []
+                right_side = inorder[root_inorder_idx+1:] if root_inorder_idx + 1 < len(inorder) else []
+                root.left = recursive_helper(d, preorder, left_side)
+                root.right = recursive_helper(d, preorder, right_side)
+            return root
+
+        d = {}  # hashmap will store elements and indexes of inorder list
+        for i, num in enumerate(inorder):
+            d[num] = i
+
+        return recursive_helper(d, preorder, inorder)
+
+    def make_bst_from_postorder_inorder(self, postorder: list, inorder: list) -> TreeNode:
+        """
+        Returns root node of tree constructed from given postorder and inorder    traversals. Assumes both traversals are correct
+        """
+        def recursive_construct_bst(start: int, end: int, postorder: list, inorder: list, d: dict) -> TreeNode:
+            """Returns root node of tree (sub-tree). Used recursively as helper"""
+
+            if start > end or not postorder:  # base case
+                return None
+
+            root_val = postorder[-1]
+            root = TreeNode(root_val)
+            postorder.pop()  # pop last element (already visited)
+
+            if start == end:  # element will be leaf
+                return root
+
+            root_idx = d[root_val]
+            root.right = recursive_construct_bst(root_idx+1, end, postorder, inorder, d)  # find right child first
+            root.left = recursive_construct_bst(start, root_idx-1, postorder, inorder, d)  # since it is postorder
+
+            return root
+
+        d = {}
+        for i, num in enumerate(inorder):  # construct dictionary
+            d[num] = i
+
+        return recursive_construct_bst(0, len(inorder)-1, postorder, inorder, d)
+
+    def make_full_tree_from_preorder_postorder(self, preorder: list, postorder: list) -> TreeNode:
+        """
+        Returns the root node of tree created from given preorder and postorder traversals.
+        Assumes traversals are correct.
+        """
+        def recursive_helper(start: int, end: int, preorder: list, postorder: list, d: dict):
+            if not preorder or not postorder or start > end:
+                return None
+
+            root_val = preorder.pop(0)
+            root = TreeNode(root_val)
+
+            if not preorder or start == end:  # leaf, no need to recur
+                return root
+
+            next = preorder[0]  # root of next iteration
+            next_idx = d[next]  # index of next root in postorder list
+            if next_idx <= end:
+                root.left = recursive_helper(start, next_idx, preorder, postorder, d)
+                root.right = recursive_helper(next_idx+1, end-1, preorder, postorder, d)
+
+            return root
+
+        d = {}
+        for i, num in enumerate(postorder):  # make dict tracking indexes of elements in postorder
+            d[num] = i
+
+        return recursive_helper(0, len(postorder)-1, preorder, postorder, d)
 
     def maximum_depth_of_tree(self) -> int:
         """
