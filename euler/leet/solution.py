@@ -13,6 +13,46 @@ from itertools import permutations
 
 class Solution:
 
+    def reverse_integer(self, num: int) -> int:
+
+        if num < -2 ** 31 or num > 2 ** 31 - 1:  # input is valid
+            return 0
+
+        ans = ""
+        str_num = str(num)
+        for i in range(len(str_num) - 1, -1, -1):  # iterate string backwards
+            ans += str_num[i]
+
+        return int(ans)
+
+    def celebrity_finder(self, matrix: list) -> int:
+        """
+        Returns an integer indicating person which is known to all but does not know anyone at party.
+        Returns -1 if no celebrity is found at the party
+        :param matrix: NXN matrix. Rows represent people at the party, and columns represent the people that the current
+        row knows.
+        """
+        if not matrix:  # base check valid input
+            return -1
+        adj = defaultdict(set)
+        for row in range(len(matrix)):  # traverse matrix and fill dictionary
+            for column in range(len(matrix[row])):
+                if matrix[row][column] == 1:  # row knows column
+                    adj[row].add(column)
+
+        for person in range(len(matrix)):
+            if len(adj[person]) == 0:
+                search = True
+                for n_person in range(len(matrix)):
+                    if n_person == person:  # avoid current candidate
+                        continue
+                    if person not in adj[n_person]:
+                        search = False
+                        break
+                if search:
+                    return person
+        return -1
+
     def group_anagrams(self, arr: list[str]) -> list:
         """
         Returns a list with grouped anagrams (words made up of the same letters)
@@ -45,7 +85,6 @@ class Solution:
                     res += 1
 
         return res + len(stack)
-
 
     def is_valid_palindrome_with_one_del(self, s:str) -> bool:
         """
@@ -643,7 +682,7 @@ class Solution:
         # (i, j) from (0, 0) if (i, j) is not a blockage, else grid[i][j] remains -1.
         # Base case
         # if not array or last element is blocked
-        if len(maze) == 0 or maze[len(maze)-1][len(maze)-1]:
+        if len(maze) == 0 or maze[len(maze)-1][len(maze)-1] == -1:
             return 0
         # If start is blocked, return
         if maze[0][0] == -1:
@@ -835,8 +874,6 @@ class Solution:
                 else:
                     dp[i][j] = 1 + min(dp[i][j-1], dp[i-1][j], dp[i-1][j-1])
         return dp[size1][size2]
-
-        return edits
 
     @staticmethod
     def evaluate_math_expr(expr: str) -> int:
@@ -1151,36 +1188,36 @@ class Solution:
         return resp
 
     @staticmethod
-    def travelling_salesman_problem(graph, s, V: int):
+    def travelling_salesman_problem(graph, v, currPos, n, count, cost):
         """
         Given a set of cities and distance between every pair of cities, the problem is to find the shortest possible
         route that visits every city exactly once and returns to the starting point.
         """
-        # store all vertex apart from source vertex
-        vertex = []
-        for i in range(V):
-            if i != s:
-                vertex.append(i)
+        # If last node is reached and it has
+        # a link to the starting node i.e
+        # the source then keep the minimum
+        # value out of the total cost of
+        # traversal and "ans"
+        # Finally return to check for
+        # more possible values
+        answer = []
+        if count == n and graph[currPos][0]:
+            answer.append(cost + graph[currPos][0])
+            return
 
-        # store minimum weight Hamiltonian Cycle
-        min_path = sys.maxsize
-        next_permutation = permutations(vertex)
-        for i in next_permutation:
+        # BACKTRACKING STEP
+        # Loop to traverse the adjacency list
+        # of currPos node and increasing the count
+        # by 1 and cost by graph[currPos][i] value
+        for i in range(n):
+            if (v[i] == False and graph[currPos][i]):
+                # Mark as visited
+                v[i] = True
+                travelling_salesman_problem(graph, v, i, n, count + 1,
+                    cost + graph[currPos][i])
 
-            # store current Path weight(cost)
-            current_pathweight = 0
-
-            # compute current path weight
-            k = s
-            for j in i:
-                current_pathweight += graph[k][j]
-                k = j
-            current_pathweight += graph[k][s]
-
-            # update minimum
-            min_path = min(min_path, current_pathweight)
-
-        return min_path
+                # Mark ith node as unvisited
+                v[i] = False
 
     @staticmethod
     def rank_teams(votes: list) -> str:
@@ -1243,7 +1280,8 @@ class Solution:
         for i in range(m):
             for j in range(n):
                 prefix[i+1][j+1] = prefix[i][j+1] + prefix[i+1][j] - prefix[i][j]
-                if pizza[i][j] == "A": prefix[i+1][j+1] += 1
+                if pizza[i][j] == "A":
+                    prefix[i+1][j+1] += 1
 
         def helper(i, j, k):
             """

@@ -617,7 +617,7 @@ class PrimsMSTAdjList:
                     minHeap.decreaseKey(v, key[v])
 
 
-class DijkstrasShortestPath:
+class DjikstrasShortestPath:
     def __init__(self, vertices):
         self.V = vertices
         self.graph = [[0 for column in range(vertices)]

@@ -13,24 +13,9 @@ from searching.pattern import KMPPatternSearch, FiniteAutomataPatternSearching, 
 from trees.tree import TreeNode, Tree
 
 if __name__ == '__main__':
+    ggl = Google()
+    sol = Solution()
+    # print(sol.celebrity_finder([[0,1,0], [0,0,0], [0,1,0]]))
 
-
-   arr = [{'num': 2, 'char': 'a'}, {'num': 1, 'char': 'c'}, {'num': 3, 'char': 'b'}]
-   # print(sorted(arr, key=lambda d: d['char'], reverse=True))
-   g = Google()
-
-   root = TreeNode('*',
-                   left=TreeNode("+",
-                                 left=TreeNode(3),
-                                 right=TreeNode(2)),
-                   right=TreeNode("+",
-                                  left=TreeNode(4),
-                                  right=TreeNode(5))
-                   )
-   t = Tree(root)
-   print(1<<0)
-
-
-
-
-
+    print(sol.reverse_integer(534))
+    print(sol.reverse_integer(2**32))

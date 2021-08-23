@@ -93,6 +93,32 @@ class FindIslands:
 
 class Google:
 
+    def distribute_bonuses(self, arr: list) -> list:
+        """
+        Returns lis of bonuses given an array of integers
+        """
+
+        if not arr:  # handle base case
+            return []
+
+        if len(arr) == 1:  # handle base case
+            return arr
+        resp = [1 for element in arr]  # create resp array of size len(arr)
+
+        if arr[0] > arr[1]:  # handle first element
+            resp[0] += 1
+
+        if arr[-1] > arr[-2]:  # handle last element
+            resp[-1] += 1
+
+        for i in range(1, len(arr) - 1):  # iterate rest of array
+            if arr[i] > arr[i - 1]:  # handle left neighbor
+                resp[i] += 1
+            if arr[i] > arr[i + 1]:  # handle right neighbor
+                resp[i] += 1
+
+        return resp
+
     def sum_bit_difference(self, arr: list) -> int:
         """
         Returns the sum of bit differences in all pairs that can be formed from array elements. Bit difference of a pair
@@ -153,9 +179,6 @@ class Google:
                 max_window_size = curr_end-curr_start+1  # adding one since keeping track of pointers here
 
         return max_window_size
-
-
-
 
     def longest_increasing_subsequence(self, arr: list) -> int:
         """
