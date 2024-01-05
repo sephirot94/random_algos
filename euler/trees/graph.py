@@ -2,7 +2,6 @@ import sys
 from collections import defaultdict
 from heap.heapster import CustomHeap
 
-
 class FindConnectedComponents:
 
     def __init__(self, V: int):
@@ -127,7 +126,7 @@ class CheckStronglyConnected:
 
     def transpose(self):
         """
-        Returns transponse (or reversed) graph
+        Returns transposed (or reversed) graph
         """
         transposed = CheckStronglyConnected(self.vertices)
         for i in self.graph:
@@ -191,8 +190,6 @@ class CheckStronglyConnected:
                 scc.append(scc_arr)
 
         return scc
-
-
 
 
 class GraphAdjMatrix:
@@ -765,7 +762,7 @@ class JobSequenceProblemDisjointSet:
             self.parent[s] = self.find(self.parent[s])
             return self.parent[s]
 
-        # Make us as parent of v
+        # Make u as parent of v
         def merge(self, u, v):
             # Update the greatest available
             # free slot to u

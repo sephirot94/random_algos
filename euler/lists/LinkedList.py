@@ -4,6 +4,7 @@ class Node:
         self.prev = prev
         self.next = next
 
+
 class LinkedList:
     def __init__(self, head=None):
         self.head = head
@@ -30,8 +31,8 @@ class LinkedList:
         newNode = Node(data)
         itr = 0
         current = self.head
-        while itr<position:
-            itr+=1
+        while itr < position:
+            itr += 1
             current = current.next
         tmp = current.next
         current.next = newNode
@@ -157,12 +158,12 @@ class LinkedList:
         prev = temp
 
         # traverse to first element of reversed portion
-        for i in range(left-1):
+        for i in range(left - 1):
             prev = prev.next
         curr = prev.next
         nxt = curr.next
         # reverse portion of list
-        for i in range(right-left):
+        for i in range(right - left):
             tmp = nxt.next
             nxt.next = curr
             curr = nxt
@@ -269,6 +270,7 @@ class SnapshotArray:
                 return d_at_snap[index]
         return 0
 
+
 class LinkedListCyclic:
     def __init__(self):
         self.head = None
@@ -296,3 +298,78 @@ class LinkedListCyclic:
             if slow == fast:
                 return True
             return False
+
+
+class LinkedListPractice:
+    def __init__(self, head=Node(0)):
+        self.head = head
+
+    def __str__(self):
+        curr = self.head
+        while curr:
+            print(curr.value)
+            curr = curr.next
+
+    def get_node(self, position: int) -> int:
+        """
+        Returns the value of the node at the given position. If position is out of bounds, returns -1
+        :param position: index of Node in list
+        :return: value of Node at given position
+        """
+        curr = self.head
+        counter = 0
+        while curr:
+            if position == counter:
+                return curr.value
+            curr = curr.next
+            counter += 1
+        return -1
+
+    def reverse_list(self):
+        """
+        Reverses list
+        """
+        curr = self.head
+        prev = None
+        while curr:
+            temp = curr.next
+            curr.next = prev
+            prev = curr
+            curr = temp
+        self.head = prev
+
+    def insert_at_tail(self, node: Node):
+        """
+        Inserts node at tail
+        :param node: Node to be inserted
+        """
+        curr = self.head
+        while curr.next:
+            curr = curr.next
+        curr.next = node
+
+    def insert_at_position(self, node: Node, position: int):
+        """
+        Inset node at position
+        :param node: Node to be inserted
+        :param position: position to insert the node
+        """
+        curr = self.head
+        counter = 0
+        prev = None
+        while curr.next:
+            if counter == position:
+                break
+            prev = curr
+            curr = curr.next
+            counter += 1
+
+        # insert
+        if not prev:
+            curr.next = node
+        else:
+            prev.next = node
+            node.next = curr
+
+
+

@@ -25,6 +25,20 @@ class Solution:
 
         return int(ans)
 
+    def longest_common_prefix(self, words: list[str]) -> str:
+        """
+        Find the longest common prefix string amongst an array of strings. 
+        If there is no common prefix, return an empty string
+        """""
+        if not words:
+            return ""
+        base = words[0]
+        for i in range(len(base)):
+            for word in words[1:]:
+                if i == len(word) or word[i] != base[i]:
+                    return base[:i]
+        return base
+
     def celebrity_finder(self, matrix: list) -> int:
         """
         Returns an integer indicating person which is known to all but does not know anyone at party.

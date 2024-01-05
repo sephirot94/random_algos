@@ -73,7 +73,7 @@ class FindIslands:
 
     def find_islands(self) -> int:
         """
-        Returns the number of islands in a 2D array conatining 1s and 0s.
+        Returns the number of islands in a 2D array containing 1s and 0s.
         An island is a 1 with all adjacent nodes == 0.
         Adj nodes are up, left, right, and down. No diagonal neighbor considered.
         Assume all edges outside the grid are water.
@@ -350,11 +350,10 @@ class Google:
                     scheduled.append(tuple)
                     new_room = False
                     break  # No need to continue looping the scheduled meetings
-                else:
-                    if scheduled[-1][0] >= tuple[1]:  # If latest scheduled meeting starts after current ends
-                        scheduled.insert(0, tuple)
-                        new_room = False
-                        break
+                elif scheduled[-1][0] >= tuple[1]:  # If latest scheduled meeting starts after current ends:
+                    scheduled.insert(0, tuple)
+                    new_room = False
+                    break
             if new_room:  # If i need a new room to hold te meeting
                 res.append([tuple])
 
@@ -402,7 +401,7 @@ class Google:
 
     def find_binary_tree_max_sum(self, root: TreeNode) -> int:
         """
-        Given a binary tree, find the max path sum. The path may start and end at any node in thre tree
+        Given a binary tree, find the max path sum. The path may start and end at any node in the tree
         :param root: root of tree
         :return: max path sum
         """
