@@ -93,6 +93,34 @@ class FindIslands:
 
 class Google:
 
+    def min_window_substring_target(self, s: str, target: str) -> str:
+        if target == "": return ""
+        count, window = collections.defaultdict(int), collections.defaultdict(int)
+        for char in target:
+            count[char] += 1
+        have, need = 0, len(count)
+        res, res_len = [-1, -1], float("inf")
+        left = 0
+        for right in range(len(s)):
+            c = s[right]
+            window[c] += 1
+            if c in count and window[c] == count[c]:
+                have += 1
+            while have == need:
+                # Update result
+                if (right - left + 1) < len(res_len):
+                    res = [left, right]
+                    res_len = (right - left + 1)
+                # pop from the left of our window
+                window[s[left]] -= 1
+                if s[left] in count and window[s[left]] < count[s[left]]:
+                    have -= 1
+                left += 1
+        left, right = res
+        return s[left:right+1] if res_len != float("inf") else ""
+
+
+
     def distribute_bonuses(self, arr: list) -> list:
         """
         Returns lis of bonuses given an array of integers
@@ -103,7 +131,7 @@ class Google:
 
         if len(arr) == 1:  # handle base case
             return arr
-        resp = [1 for element in arr]  # create resp array of size len(arr)
+        resp = [1] * len(arr)  # create resp array of size len(arr)
 
         if arr[0] > arr[1]:  # handle first element
             resp[0] += 1
@@ -302,33 +330,15 @@ class Google:
 
         return resp
 
-    def reverse_words(self, s: str) -> str:
+    def reverse_words(self, words: str) -> str:
         """
         Returns the string with all its words reversed. White spaces are maintained
         :param s: string with words
         :return: string with reversed words
         """
-        q = collections.deque([])
-        stack = []
-        res = ""
-        for word in s.split(" "):  # form queue of reversed words to be appended to result
-            w = ""
-            # reverse the word
-            for char in word:
-                stack.append(char)
-            while stack:
-                char = stack.pop()
-                w += char
-            q.append(w)  # append reversed word to q
-
-        while q:  # Iterate through queue and form res string
-            word = q.popleft()
-            res += f"{word} "
-
-        if res:  # Clean last white space
-            res = res[:-1]
-
-        return res
+        word_list = words.split(" ")
+        word_list = [word_list[i] for i in range(len(word_list) - 1, -1, -1)]
+        return " ".join(word_list)
 
     def room_scheduling(self, arr: list) -> int:
         """
@@ -338,13 +348,10 @@ class Google:
         :return: min number of rooms required to hold all meetings
         """
         # Time complexity O(n*m) Where n = len(arr) and m = len(res)
-        res = []
+        res = [[arr[0]]]
 
-        for tuple in arr:  # O(n)
+        for tuple in arr[1:]:  # O(n)
             new_room = True
-            if not res:
-                res.append([tuple])
-                continue
             for scheduled in res:  # O(m)
                 if scheduled[-1][1] <= tuple[0]:  # If latest scheduled meeting ends before tuple starts
                     scheduled.append(tuple)
@@ -358,6 +365,76 @@ class Google:
                 res.append([tuple])
 
         return len(res)
+
+    def can_schedule_single_room(self, arr: list) -> bool:
+        """
+        Given a list of tuples (start, end), representing time intervals for lectures. The intervals may be overlapping.
+        Returns whether we can schedule all of them in a single room.
+        :param arr: list of tuples (start, end) with time intervals of meetings
+        :return: boolean indicating whether we can fit all lectures in a single room
+        """
+        # Time complexity O(n*m) Where n = len(arr) and m = len(res)
+        res = [arr[0]]
+        num_rooms = 0
+        for tuple in arr[1:]:  # O(n)
+            new_room = True
+            for scheduled in res:  # O(m)
+                if scheduled[-1][1] <= tuple[0]:  # If latest scheduled meeting ends before tuple starts
+                    scheduled.append(tuple)
+                    new_room = False
+                    break  # No need to continue looping the scheduled meetings
+                elif scheduled[-1][0] >= tuple[1]:  # If latest scheduled meeting starts after current ends:
+                    scheduled.insert(0, tuple)
+                    new_room = False
+                    break
+            if new_room:  # If i need a new room to hold te meeting
+                num_rooms += 1
+                if num_rooms > 1:
+                    return False
+        return True
+
+    def room_scheduling_conflicts(self, arr: list) -> list:
+        """Returns a list with all the conflicting timeslots for scheduling rooms problem"""
+        scheduler = [[arr[0]]]
+        res = []
+        for tuple in arr[1:]:
+            new_room = True
+            for scheduled in scheduler:
+                if scheduled[-1][1] <= tuple[0]:  # If the last end is smaller than new start
+                    scheduled.append(tuple)
+                    new_room = False
+                    break
+                if scheduled[-1][0] >= tuple[1]:  # If the last start is after the new end
+                    scheduled.insert(0, tuple)
+                    new_room = False
+                    break
+            if new_room:
+                res.append(tuple)
+        return res
+
+    def room_scheduling_timelines(self, timeline1: list[tuple], timeline2: list[tuple]) -> list[tuple]:
+        """
+        Follow up, use the original function to merge two timelines that are represented as lists of periods that now
+        have a 3rd property, a Boolean status.
+        For example, t1 = [(-INF, 3, T), (3, 6, F), (6, INF, T)] and t2 = [(-INF, 3, F), (3, INF, T)].
+        The resulting timeline would be [(-INF, 3, F), (3, 6, F), (6, INF, T)].
+        """
+
+    def coffee_machine(self, buttons: list[int], cup: int) -> bool:
+        """
+        Given a coffee machine with n buttons that pour a specified amount of coffee and a cup that can hold a bounded
+        range of coffee, write a function that returns True if you can successfully fill the cup of coffee within the
+        given range using the buttons of the coffee machine. For example, a coffee machine that can pour 4, 7,
+        and 13 ounces cannot fill a cup that can hold 9 to 10 ounces of coffee.
+        That same coffee machine can fill a cup that can hold 9 to 11 ounces of coffee.
+        """
+
+    def coffee_machine_presses(self, arr: list[int]) -> int:
+        """
+        Returns the button presses needed to successfully fill a given cup of coffee.
+        For example, using our second cup that can hold 9 to 11 ounces of coffee, a user would need to press the 7 ounce
+        button and the 4 ounce button.
+        """
 
     def running_median(self, arr: list) -> list:
         """

@@ -1,28 +1,31 @@
+from collections import defaultdict
+
+
 class Play:
 
     def __init__(self):
         pass
 
-    @staticmethod
-    def is_balanced_parenthesis(word: str):
-        """
-        Given a string, returns true if it has balanced parenthesis
-        :param word: input string
-        :return: booleand indicating if string has valid parenthesis
-        """
-        stack = []
-        for letter in word:
-            if letter is "(" or letter is "[" or letter is "{":
-                stack.append(letter)
-            if letter is ")" or letter is "]" or letter is "}":
-                prev = stack.pop()
-                if letter is ")" and prev != "(":
-                    return False
-                if letter is "]" and prev != "]":
-                    return False
-                if letter is "}" and prev != "}":
-                    return False
-        return True
+    # @staticmethod
+    # def is_balanced_parenthesis(word: str):
+    #     """
+    #     Given a string, returns true if it has balanced parenthesis
+    #     :param word: input string
+    #     :return: booleand indicating if string has valid parenthesis
+    #     """
+    #     stack = []
+    #     for letter in word:
+    #         if letter is "(" or letter is "[" or letter is "{":
+    #             stack.append(letter)
+    #         if letter is ")" or letter is "]" or letter is "}":
+    #             prev = stack.pop()
+    #             if letter is ")" and prev != "(":
+    #                 return False
+    #             if letter is "]" and prev != "]":
+    #                 return False
+    #             if letter is "}" and prev != "}":
+    #                 return False
+    #     return True
 
     def smallest_positive_integer_not_present(self, numbers: list[int]) -> int:
         """

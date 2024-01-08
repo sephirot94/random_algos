@@ -340,27 +340,65 @@ class Solution:
         :param stocks: list containing stock prices
         :return: max gain of the day
         """
-        buy = 0
-        sell = 0
-        max_profit = -1
-        search_buy_candidate = True
-        for i, stock in enumerate(stocks):
-            if i+1 == len(stocks):
-                break
-            sell = stocks[i+1]
-            if search_buy_candidate:
-                buy = stock
-            if sell < buy:
-                search_buy_candidate = True
-                continue
-            else:
-                temp = sell - buy
-                if temp > max_profit:
-                    max_profit = temp
-                    search_buy_candidate = False
-
-
+        min_price = stocks[0]
+        max_profit = 0
+        for stock in stocks[1:]:
+            max_profit = max(max_profit, stock - min_price)
+            min_price = min(min_price, stock)
         return max_profit
+
+    def stock_max_profit_2(self, prices: list) -> int:
+        """
+        You are given an integer array prices where prices[i] is the price of a given stock on the ith day.
+        On each day, you may decide to buy and/or sell the stock. You can only hold at most one share of the stock at
+        any time. However, you can buy it then immediately sell it on the same day.
+        Find and return the maximum profit you can achieve.
+        :return: max gain of the day
+        """
+        profit_from_price_gain = 0
+        for idx in range(len(prices) - 1):
+            if prices[idx] < prices[idx + 1]:
+                profit_from_price_gain += (prices[idx + 1] - prices[idx])
+
+        return profit_from_price_gain
+
+    def stock_max_profit_3(self, prices: list) -> int:
+        """
+        You are given an array prices where prices[i] is the price of a given stock on the ith day.
+        Find the maximum profit you can achieve. You may complete at most two transactions.
+        Note: You may not engage in multiple transactions simultaneously
+        (i.e., you must sell the stock before you buy again).
+        :return: max gain of the day
+        """
+        buy, sell = [float("inf")] * 2, [0] * 2
+        for x in prices:
+            for i in range(2):
+                if i:
+                    buy[i] = min(buy[i], x - sell[i - 1])
+                else:
+                    buy[i] = min(buy[i], x)
+                sell[i] = max(sell[i], x - buy[i])
+        return sell[-1]
+
+    def stock_max_profit_4(self, prices: list, k: int) -> int:
+        """
+        You are given an array prices where prices[i] is the price of a given stock on the ith day.
+        Find the maximum profit you can achieve. You may complete at most K transactions.
+        Note: You may not engage in multiple transactions simultaneously
+        (i.e., you must sell the stock before you buy again).
+        :return: max gain of the day
+        """
+        if not prices or k <= 0:
+            return 0
+        buy, sell = [float("inf")] * k, [0] * k
+        for x in prices:
+            for i in range(2):
+                if i:
+                    buy[i] = min(buy[i], x - sell[i - 1])
+                else:
+                    buy[i] = min(buy[i], x)
+                sell[i] = max(sell[i], x - buy[i])
+        return sell[-1]
 
     def check_array_non_decreasing(self, l: list) -> bool:
         """
@@ -1224,11 +1262,11 @@ class Solution:
         # of currPos node and increasing the count
         # by 1 and cost by graph[currPos][i] value
         for i in range(n):
-            if (v[i] == False and graph[currPos][i]):
+            if not v[i] and graph[currPos][i]:
                 # Mark as visited
                 v[i] = True
-                travelling_salesman_problem(graph, v, i, n, count + 1,
-                    cost + graph[currPos][i])
+                graph.travelling_salesman_problem(graph, v, i, n, count + 1,
+                                                  cost + graph[currPos][i])
 
                 # Mark ith node as unvisited
                 v[i] = False
@@ -1392,14 +1430,14 @@ class Solution:
         :param duration: array containing duration of each participant's lecture
         :return: max number of lectures that can occur in a single day
         """
-        # O(n) Time
+        # O(nlog(n)) Time
         ans = 0
 
         # Sorting of meeting according to
         # their finish time.
         zipped = zip(arrival, duration)
         zipped = list(zipped)
-        zipped.sort(key=lambda x: x[0] + x[1])
+        zipped.sort(key=lambda x: x[0] + x[1])  # O(nlog(n))
 
         # Initially select first meeting
         ans += 1
