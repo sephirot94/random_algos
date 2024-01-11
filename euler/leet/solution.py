@@ -1433,8 +1433,7 @@ class Solution:
         # O(nlog(n)) Time
         ans = 0
 
-        # Sorting of meeting according to
-        # their finish time.
+        # Sorting of meeting according to their finish time.
         zipped = zip(arrival, duration)
         zipped = list(zipped)
         zipped.sort(key=lambda x: x[0] + x[1])  # O(nlog(n))
@@ -1520,27 +1519,25 @@ class Solution:
 
             # If number is 0, we don't
             # multiply it with product.
-            if (arr[i] == 0):
-                count_zero = count_zero + 1
+            if arr[i] == 0:
+                count_zero += 1
                 continue
 
             # Count negatives and keep
             # track of maximum valued
             # negative.
-            if (arr[i] < 0):
-                count_neg = count_neg + 1
+            if arr[i] < 0:
+                count_neg += 1
                 max_neg = max(max_neg, arr[i])
 
             # Track minimum positive
             # number of array
-            if (arr[i] > 0):
+            if arr[i] > 0:
                 min_pos = min(min_pos, arr[i])
 
             prod = prod * arr[i]
 
-        # If there are all zeros
-        # or no negative number
-        # present
+        # If there are all zeros or no negative number present
         if count_zero == n or (count_neg == 0 and count_zero > 0):
             return 0
 

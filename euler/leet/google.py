@@ -412,15 +412,51 @@ class Google:
                 res.append(tuple)
         return res
 
-    def room_scheduling_timelines(self, timeline1: list[tuple], timeline2: list[tuple]) -> list[tuple]:
+    def room_scheduling_timelines(self, t1: list[tuple], t2: list[tuple]) -> list[tuple]:
         """
         Follow up, use the original function to merge two timelines that are represented as lists of periods that now
         have a 3rd property, a Boolean status.
         For example, t1 = [(-INF, 3, T), (3, 6, F), (6, INF, T)] and t2 = [(-INF, 3, F), (3, INF, T)].
         The resulting timeline would be [(-INF, 3, F), (3, 6, F), (6, INF, T)].
         """
+        merged_timeline = []
 
-    def coffee_machine(self, buttons: list[int], cup: int) -> bool:
+        i, j = 0, 0
+
+        while i < len(t1) and j < len(t2):
+            start1, end1, status1 = t1[i]
+            start2, end2, status2 = t2[j]
+
+            if end1 < start2:
+                merged_timeline.append((start1, end1, status1))
+                i += 1
+            elif end2 < start1:
+                merged_timeline.append((start2, end2, status2))
+                j += 1
+            else:
+                start = min(start1, start2)
+                end = max(end1, end2)
+                status = status1 or status2
+                merged_timeline.append((start, end, status))
+
+                if end1 < end2:
+                    i += 1
+                else:
+                    j += 1
+
+        # Append remaining periods from t1
+        while i < len(t1):
+            merged_timeline.append(t1[i])
+            i += 1
+
+        # Append remaining periods from t2
+        while j < len(t2):
+            merged_timeline.append(t2[j])
+            j += 1
+
+        return merged_timeline
+
+    def coffee_machine(self, buttons: list[int], cup: (int, int)) -> bool:
         """
         Given a coffee machine with n buttons that pour a specified amount of coffee and a cup that can hold a bounded
         range of coffee, write a function that returns True if you can successfully fill the cup of coffee within the
@@ -428,13 +464,58 @@ class Google:
         and 13 ounces cannot fill a cup that can hold 9 to 10 ounces of coffee.
         That same coffee machine can fill a cup that can hold 9 to 11 ounces of coffee.
         """
+        memo = {}
+        cup_min, cup_max = cup
 
-    def coffee_machine_presses(self, arr: list[int]) -> int:
+        def helper(target):
+            if target < cup_min or target > cup_max:
+                return False
+
+            if target == 0:
+                return True
+
+            if target in memo:
+                return memo[target]
+
+            for button in buttons:
+                if helper(target - button):
+                    memo[target] = True
+                    return True
+
+            memo[target] = False
+            return False
+
+        return helper(cup_max)
+
+    def coffee_machine_presses(self, buttons: list[int], cup: tuple[int, int]) -> int:
         """
         Returns the button presses needed to successfully fill a given cup of coffee.
         For example, using our second cup that can hold 9 to 11 ounces of coffee, a user would need to press the 7 ounce
         button and the 4 ounce button.
         """
+        memo = {}
+        cup_min, cup_max = cup
+        def helper(target):
+            if target < cup_min or target > cup_max:
+                return None
+
+            if target == 0:
+                return []
+
+            if target in memo:
+                return memo[target]
+
+            for button in buttons:
+                remaining = target - button
+                result = helper(remaining)
+                if result is not None:
+                    memo[target] = [button] + result
+                    return memo[target]
+
+            memo[target] = None
+            return None
+
+        return helper(cup_max)
 
     def running_median(self, arr: list) -> list:
         """
