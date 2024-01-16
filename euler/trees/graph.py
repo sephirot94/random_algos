@@ -1,3 +1,4 @@
+import collections
 import sys
 from collections import defaultdict
 from heap.heapster import CustomHeap
@@ -22,8 +23,8 @@ class RobotPath:
             self.dfs(visited, i+1, j)
             self.dfs(visited, i, j+1)
 
-    def dfs_iterative(self, visited: list, i: int, j: int):
-        stack = [(i, j)]
+    def dfs_iterative(self, visited: list):
+        stack = [(0,0)]
 
         while stack:
             i, j = stack.pop()
@@ -39,6 +40,48 @@ class RobotPath:
             stack.append((i + 1, j))
             stack.append((i, j + 1))
 
+    def bfs(self, visited: list):
+        q = collections.deque([(0,0)])
+        while q:
+            i, j = q.popleft()
+            if not self.validate(i, j) or visited[i][j]:
+                continue
+            visited[i][j] = True
+            if self.graph[i][j] == 1:
+                continue
+            if self.validate(i + 1, j):
+                q.append((i+1, j))
+            if self.validate(i, j+1):
+                q.append((i, j+1))
+
+    def can_traverse_bfs(self) -> bool:
+        """Returns whether the robot can traverse the graph"""
+        visited = [[False for _ in range(len(self.graph[i]))] for i in range(len(self.graph))]
+        self.bfs(visited)
+        return visited[-1][-1]
+
+
+    def min_number_moves(self) -> int:
+        """Shortest path, returns integer indicating minimum number of moves required to reach end"""
+        if not self.graph:
+            return 0
+        q = collections.deque([(0,0,0)])
+        n, m = len(self.graph), len(self.graph[0])
+        visited = [[False for _ in range(m)] for _ in range(n)]
+        while q:
+            i, j, move = q.popleft()
+            if not self.validate(i, j) or visited[i][j]:
+                continue
+            visited[i][j] = True
+            if self.graph[i][j] == 1:
+                continue
+            if i == n-1 and j == m-1:  # Handle end goal reached
+                return move
+            q.append((i+1, j, move+1))
+            q.append((i, j+1, move+1))
+        return 0  # End could not be reached
+
+
     def can_reach_end(self) -> bool:
         """
         Returns boolean indicating the end can be reached. The robot can move horizontally or vertically among the 0s,
@@ -47,40 +90,6 @@ class RobotPath:
         visited = [[False for _ in range(len(self.graph[i]))] for i in range(len(self.graph))]
         self.dfs(visited, 0, 0)
         return visited[-1][-1]
-
-    def number_of_moves(self) -> int:
-        """Returns the min number of moves required to reach end, and 0 if it is impossible"""
-        n, m = len(self.graph), len(self.graph[0])
-        dp = [[0 for _ in range(n)] for _ in range(m)]
-        visited = [[False for _ in range(n)] for _ in range(m)]
-        if n >= 0 and m >= 1 and self.graph[0][1] == 0:
-            dp[0][1] = 1
-        if n >= 1 and m >= 0 and self.graph[1][0] == 0:
-            dp[1][0] = 1
-        stack = [(0,0)]
-        while stack:
-            i, j = stack.pop()
-            if not self.validate(i, j) or visited[i][j]:
-                continue
-            visited[i][j] = True
-            if self.graph[i][j] == 1:
-                continue
-            if self.validate(i-1, j) and self.graph[i-1][j] != 1:
-                dp[i][j] = min(dp[i][j], dp[i-1][j] + 1) if dp[i][j] != 0 else dp[i-1][j] + 1
-                stack.append((i-1, j))
-            if self.validate(i, j-1) and self.graph[i][j-1] != 1:
-                dp[i][j] = min(dp[i][j], dp[i][j-1] + 1) if dp[i][j] != 0 else dp[i][j-1] + 1
-                stack.append((i, j-1))
-            if self.validate(i+1, j) and self.graph[i+1][j] != 1:
-                dp[i+1][j] = min(dp[i+1][j], dp[i][j] + 1) if dp[i+1][j] != 0 else dp[i][j] + 1
-                stack.append((i+1, j))
-            if self.validate(i, j+1) and self.graph[i][j+1] != 1:
-                dp[i][j+1] = min(dp[i][j+1], dp[i][j] + 1) if dp[i][j+1] != 0 else dp[i][j] + 1
-                stack.append((i, j+1))
-
-        return dp[-1][-1]
-
-
 
 
 class FindConnectedComponents:

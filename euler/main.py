@@ -39,8 +39,8 @@ if __name__ == '__main__':
     graph = [
         [0,0,1,0],
         [0,1,0,0],
-        [0,0,0,0],
-        [1,0,1,0]
+        [0,1,1,0],
+        [1,0,0,0]
     ]
     robot = RobotPath(graph)
-    print(robot.number_of_moves())
+    print(robot.min_number_moves())
