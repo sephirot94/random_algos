@@ -1,3 +1,4 @@
+import math
 import sys
 from functools import reduce
 
@@ -45,7 +46,8 @@ class Node:
         self.word = word
         self.depth = depth
 
-INT_MIN = -2**32
+
+INT_MIN = -2 ** 32
 MTX_MAX = 20
 
 
@@ -55,8 +57,7 @@ class FindIslands:
         self.visited = set()
 
     def is_valid(self, i, j):
-        return 0 <= i < len(self.matrix) \
-               and 0 <= j < len(self.matrix[i])
+        return 0 <= i < len(self.matrix) and 0 <= j < len(self.matrix[i])
 
     def dfs_util(self, i, j):
         """
@@ -65,11 +66,10 @@ class FindIslands:
         self.visited.add((i, j))
         if self.matrix[i][j] == 0:  # If water is found
             return
-        neighbors = [(i-1,j), (i+1, j), (i, j-1), (i, j+1)]
+        neighbors = [(i - 1, j), (i + 1, j), (i, j - 1), (i, j + 1)]
         for x, y in neighbors:  # Check all neighbors
             if (x, y) not in self.visited and self.is_valid(x, y):  # If not visited and valid
                 self.dfs_util(x, y)  # Run DFS search on neighbor
-
 
     def find_islands(self) -> int:
         """
@@ -87,8 +87,42 @@ class FindIslands:
             for col in range(len(self.matrix[row])):
                 if self.matrix[row][col] == 1 and (row, col) not in self.visited:
                     self.dfs_util(row, col)
-                    islands +=1
+                    islands += 1
         return islands
+
+
+def decompress_compress_string(arr: str) -> str:
+    """
+    Given a string in the format num[char] return the decompressed string resulting in num*char
+    It can be given that we have nested strings like 3[2[a]b]
+    :param arr: input string
+    :return: decompressed string
+    """
+    closePos = {}
+    st = []
+    for i, c in enumerate(arr):
+        if c == '[':
+            st.append(i)
+        elif c == ']':
+            closePos[st.pop()] = i
+
+    def dfs(l, r):
+        num = 0
+        ans = ""
+        while l <= r:
+            c = arr[l]
+            if ord('0') <= ord(c) <= ord('9'):
+                num = num * 10 + ord(c) - ord('0')
+            elif c == '[':
+                ans += num * dfs(l + 1, closePos[l] - 1)
+                num = 0
+                l = closePos[l]
+            else:
+                ans += c
+            l += 1
+        return ans
+
+    return dfs(0, len(arr) - 1)
 
 
 class Google:
@@ -117,9 +151,7 @@ class Google:
                     have -= 1
                 left += 1
         left, right = res
-        return s[left:right+1] if res_len != float("inf") else ""
-
-
+        return s[left:right + 1] if res_len != float("inf") else ""
 
     def distribute_bonuses(self, arr: list) -> list:
         """
@@ -170,7 +202,7 @@ class Google:
                 if arr[j] and 1 << i:
                     count += 1
 
-            ans += 2 * count * (len(arr)-count)
+            ans += 2 * count * (len(arr) - count)
 
         return ans
 
@@ -203,8 +235,8 @@ class Google:
                     window_uniques.pop(s[curr_start])
                 curr_start += 1  # increment a pointer to the start of window
 
-            if curr_end-curr_start+1 > max_window_size:  # if current window is bigger than max window so far
-                max_window_size = curr_end-curr_start+1  # adding one since keeping track of pointers here
+            if curr_end - curr_start + 1 > max_window_size:  # if current window is bigger than max window so far
+                max_window_size = curr_end - curr_start + 1  # adding one since keeping track of pointers here
 
         return max_window_size
 
@@ -226,21 +258,19 @@ class Google:
                     low = mid
             return high
 
-        tail_tracker = [0 for i in range(len(arr)+1)]
+        tail_tracker = [0 for i in range(len(arr) + 1)]
         tail_tracker[0] = arr[0]  # add first element as tail and start recurring
         pointer = 1
         for i in range(1, len(arr)):  # start at 1 since we have already extracted first element
             if arr[i] < tail_tracker[0]:  # new smallest element found
                 tail_tracker[0] = arr[i]  # replace smallest element
-            elif arr[i] > tail_tracker[pointer-1]:  # if bigger, extend current subsequence
+            elif arr[i] > tail_tracker[pointer - 1]:  # if bigger, extend current subsequence
                 tail_tracker[pointer] = arr[i]
                 pointer += 1
             else:  # current element is candidate to end an existing subsequence
-                tail_tracker[find_ceil(tail_tracker, -1, pointer-1, arr[i])] = arr[i]  # replace ceil in tracker
+                tail_tracker[find_ceil(tail_tracker, -1, pointer - 1, arr[i])] = arr[i]  # replace ceil in tracker
 
         return pointer
-
-
 
     def find_intersection_between_arrays(self, arr1: list, arr2: list):
         """
@@ -272,11 +302,11 @@ class Google:
         resp = []
         for i, num in enumerate(arr):
             left_half = arr[:i]  # split array in half and omit element at index
-            right_half = arr[i+1:]
+            right_half = arr[i + 1:]
             # since 1 is neutral in multiplication problems, use in case either half is empty
-            left_val = reduce((lambda x, y: x*y), left_half) if left_half else 1
+            left_val = reduce((lambda x, y: x * y), left_half) if left_half else 1
             right_val = reduce((lambda x, y: x * y), right_half) if right_half else 1
-            resp.append(left_val*right_val)  # append the multiplication of both halves
+            resp.append(left_val * right_val)  # append the multiplication of both halves
 
         return resp
 
@@ -320,12 +350,12 @@ class Google:
             if prev == -1:  # if searching prev, assign and continue
                 prev = arr[i]
                 continue
-            if arr[i]-1 != arr[i-1] and arr[i] != arr[i-1]:  # If not consecutive and not equal
-                s = f"{prev}->{arr[i-1]}"  # generate string
+            if arr[i] - 1 != arr[i - 1] and arr[i] != arr[i - 1]:  # If not consecutive and not equal
+                s = f"{prev}->{arr[i - 1]}"  # generate string
                 resp.append(s)  # append to result
                 prev = arr[i]  # reset prev for next search
 
-        s = f"{prev}->{arr[len(arr)-1]}"  # handle last case
+        s = f"{prev}->{arr[len(arr) - 1]}"  # handle last case
         resp.append(s)  # append to result
 
         return resp
@@ -487,7 +517,8 @@ class Google:
 
         return helper(cup_max)
 
-    def coffee_machine_presses(self, buttons: list[int], cup: tuple[int, int]) -> int:
+    @staticmethod
+    def coffee_machine_presses(buttons: list[int], cup: tuple[int, int]) -> int:
         """
         Returns the button presses needed to successfully fill a given cup of coffee.
         For example, using our second cup that can hold 9 to 11 ounces of coffee, a user would need to press the 7 ounce
@@ -495,6 +526,7 @@ class Google:
         """
         memo = {}
         cup_min, cup_max = cup
+
         def helper(target):
             if target < cup_min or target > cup_max:
                 return None
@@ -517,52 +549,14 @@ class Google:
 
         return helper(cup_max)
 
-    def running_median(self, arr: list) -> list:
-        """
-        Returns a list computing the running median, which is the median of the list with each new element.
-        :param arr:
-        :return:
-        """
-
-    def decompress_compress_string(self, arr: str) -> str:
-        """
-        Given a string in the format num[char] return the decompressed string resulting in num*char
-        It can be given that we have nested strings like 3[2[a]b]
-        :param arr: input string
-        :return: decompressed string
-        """
-        closePos = {}
-        st = []
-        for i, c in enumerate(arr):
-            if c == '[':
-                st.append(i)
-            elif c == ']':
-                closePos[st.pop()] = i
-
-        def dfs(l, r):
-            num = 0
-            ans = ""
-            while l <= r:
-                c = arr[l]
-                if ord('0') <= ord(c) <= ord('9'):
-                    num = num * 10 + ord(c) - ord('0')
-                elif c == '[':
-                    ans += num * dfs(l + 1, closePos[l] - 1)
-                    num = 0
-                    l = closePos[l]
-                else:
-                    ans += c
-                l += 1
-            return ans
-
-        return dfs(0, len(arr) - 1)
-
-    def find_binary_tree_max_sum(self, root: TreeNode) -> int:
+    @staticmethod
+    def find_binary_tree_max_sum(root: TreeNode) -> int:
         """
         Given a binary tree, find the max path sum. The path may start and end at any node in the tree
         :param root: root of tree
         :return: max path sum
         """
+
         def recursive_helper(root: TreeNode):
             """
             Helper used for recursion
@@ -638,22 +632,23 @@ class Google:
         """
         # Using memoization DP
         dp = [[]]
+
         def recursive_helper(matrix, n, m):
             if n < len(matrix) and m < len(matrix[0]):
-                if n == len(matrix)-1 and len(matrix[0])-1:
+                if n == len(matrix) - 1 and len(matrix[0]) - 1:
                     dp[n][m] = 1
                     return dp[n][m]
                 # Check dp array to see if we have found route for a particular cell. If result is not None, return it.
                 if dp[n][m]:
                     return dp[n][m]
                 # Store the sum of ways we can reach by right and bottom cell in the dp array and return result
-                dp[n][m] = recursive_helper(matrix, n+1, m) + recursive_helper(matrix, n, m+1)
+                dp[n][m] = recursive_helper(matrix, n + 1, m) + recursive_helper(matrix, n, m + 1)
                 return dp[n][m]
             return 0
 
         return recursive_helper(matrix, 0, 0)
 
-    def word_ladder(self, beginWord: str, endWord:str, wordList: list) -> int:
+    def word_ladder(self, beginWord: str, endWord: str, wordList: list) -> int:
         """
         Given two words, beginWord and endWord, and a dictionary wordList, return the number of words in the shortest
         transformation sequence from beginWord to endWord, or 0 if no such sequence exists.
@@ -683,15 +678,14 @@ class Google:
                     curIdx += 1
                 if skipWord:
                     # this word has more than one char difference, so skip it
-                    skipWord = False
                     continue
                 else:
                     # if it's endWord then we're done
                     if word == endWord:
                         return curDepth + 1
+                    # Otherwise keep iterating, append child to Q and remove word from list
                     child = TreeNode(word, curDepth + 1)
                     queue.append(child)
-                    # remove word from list
                     wordSet.remove(word)
 
         # not possible (e.g. the endWord isn't in list, or no path to endWord)
@@ -706,6 +700,7 @@ class Google:
         dp = [[-1 for i in range(MTX_MAX)] for i in range(MTX_MAX)]
         n = len(matrix)
         m = len(matrix[0])
+
         def recursive_helper(matrix, n, m, x, y):
             # If value not calculated yet.
             if dp[x][y] < 0:
@@ -724,14 +719,15 @@ class Google:
                 # If value greater than below cell.
                 if (x + 1 < n and matrix[x][y] < matrix[x + 1][y]):
                     result = 1 + recursive_helper(dp, matrix, n,
-                                     m, x + 1, y)
+                                                  m, x + 1, y)
 
                 # If value greater than left cell.
                 if (y + 1 < m and matrix[x][y] < matrix[x][y + 1]):
                     result = max(res, 1 + recursive_helper(dp, matrix, n,
-                                                 m, x, y + 1))
+                                                           m, x, y + 1))
                 dp[x][y] = result
             return dp[x][y]
+
         return recursive_helper(matrix, n, m, 0, 0)
 
     def get_max_sum_leaves_to_root_path_binary_tree(self, root: TreeNode) -> int:
@@ -846,6 +842,7 @@ class Google:
 
         return table[total] if table[total] != sys.maxsize else -1
 
+
 class urlShortener:
     """
     Use the integer id stored in the database and convert the integer to a character string that is at most 6 characters
@@ -886,3 +883,141 @@ class urlShortener:
                 id = id * 62 + val_i - ord('0') + 52
         return id
 
+
+class Oscar:
+
+    @staticmethod
+    def reverse_words(words: str) -> str:
+        """Reverses the words of a given string and returns it. Words are separated by a whitespace"""
+        word_list = words.split(" ")
+        word_list = [word_list[i] for i in range(len(word_list) - 1, -1, -1)]
+        return " ".join(word_list)
+    @staticmethod
+    def unique_occurrences(arr: list[int]) -> bool:
+        comp = set()
+        d = defaultdict(int)
+        for num in arr:
+            d[num] += 1
+        for num in d.values():
+            if num in comp:
+                return False
+            comp.add(num)
+        return True
+
+    @staticmethod
+    def common_chars(words: list[str]) -> list[str]:
+        counter_list = [Counter(word) for word in words]
+        ans = []
+        base = counter_list[0]
+        for k in base.keys():
+            m = base[k]
+            for counter in counter_list[1:]:
+                m = min(m, counter.get(k, 0))
+            ans += [k] * m
+        return ans
+
+    @staticmethod
+    def max_vowels(s: str, k: int) -> int:
+        """Return the amount of vowels in the substring of length K inside S which has the most vowels"""
+        m = 0
+        for i in range(len(s) - k):
+            vowels = re.findall(r'[aeiouAEIOU]', s[i:i + k + 1])
+            m = max(m, len(vowels))
+        return m
+
+    @staticmethod
+    def max_area(height: list[int]) -> int:
+        """
+        You are given an integer array height of length n. There are n vertical lines drawn such that the two endpoints of
+        the ith line are (i, 0) and (i, height[i]).
+        Find two lines that together with the x-axis form a container, such that the container contains the most water.
+        Return the maximum amount of water a container can store.
+        """
+
+        def calculate_area(b: int, h: int) -> int:
+            return b * h
+
+        l, r = 0, len(height) - 1
+        m = 0
+        while l != r:
+            m = max(m, calculate_area(r - l, min(height[l], height[r])))
+            if height[l + 1] >= height[r - 1]:
+                l += 1
+            else:
+                r -= 1
+        return m
+
+    @staticmethod
+    def max_average_subarray(nums: list[int], k: int) -> float:
+        """Returns the maximum average of a subarray of length K"""
+        if len(nums) < k or k == 0:
+            return 0
+        if len(nums) == k:
+            return avg(nums)
+        m = 0
+        for i in range(len(nums) - k):
+            m = max(avg(nums[i:i + k]), m)
+        return m
+
+    @staticmethod
+    def intersection_three_sorted_arrays(arr1: list, arr2: list, arr3: list) -> list:
+        """Given three sorted arrays, return an array containing the intersection of the three arrays, including repeated"""
+        if not arr1:
+            return []
+        ans = []
+        for i, elem in enumerate(arr1):
+            try:
+                if elem == arr2[i] and elem == arr3[i]:
+                    ans.append(elem)
+            except IndexError:
+                break
+        return ans
+
+    @staticmethod
+    def reverse_vowels(word: str) -> str:
+        """Reverses all vowels inside a string"""
+        s = list(word)
+        st = set("aeiouAEIOU")
+        b, e = 0, len(s) - 1
+        while b < e:
+            while b < e and s[b] not in st:  # ignore non vowels
+                b += 1
+                continue
+            while b < e and s[e] not in st:
+                e -= 1
+                continue
+            s[b], s[e] = s[e], s[b]  # reverse vowels
+            b += 1
+            e -= 1
+        return ''.join(s)
+
+    @staticmethod
+    def remove_vowels(word: str) -> str:
+        """Removes vowels from a string"""
+        s = list(word)
+        st = set("aeiouAEIOU")
+        for char in word:
+            if char in st:
+                s.remove(char)
+        return ''.join(s)
+
+    @staticmethod
+    def max_subarray(nums: list[int]) -> int:
+        """Given an integer array nums, find the subarray with the largest sum, and return its sum."""
+        curr_max, max_till_now = 0, float("-inf")
+        for c in nums:
+            curr_max = max(c, curr_max + c)  # We either start a new subarray or add the number to the existing
+            max_till_now = max(max_till_now, curr_max)  # Update search if curr_max > max_till_now
+        return max_till_now
+
+    @staticmethod
+    def greatest_common_divider_of_strings(str1: str, str2: str) -> str:
+        """
+        For two strings s and t, we say "t divides s" if and only if s = t + ... + t
+        (i.e., t is concatenated with itself one or more times).
+        Given two strings str1 and str2, return the largest string x such that x divides both str1 and str2
+        """
+        if str1 + str2 == str2 + str1:
+            return ""
+            # Else return the substring from 0 to gcd of sizes str1, str2
+        return str1[:math.gcd(len(str1), len(str2))]

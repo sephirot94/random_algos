@@ -2,11 +2,13 @@ import heapq
 import math
 from collections import deque, defaultdict
 
+
 class HeapNode:
     def __init__(self, val: int, left=None, right=None):
         self.val = val
         self.left = left
         self.right = right
+
 
 class KthLargest(object):
     def __init__(self, k: int, nums: list):
@@ -138,6 +140,34 @@ class CustomHeap:
         return False
 
 
+class RunningMedianCalculator:
+    def running_median(self, arr):
+        min_heap = []  # Represents the larger half of the elements
+        max_heap = []  # Represents the smaller half of the elements
+
+        for num in arr:
+            self._add_number(num, min_heap, max_heap)
+            yield self._calculate_median(min_heap, max_heap)
+
+    def _add_number(self, num, min_heap, max_heap):
+        if not max_heap or num < -max_heap[0]:
+            heapq.heappush(max_heap, -num)
+        else:
+            heapq.heappush(min_heap, num)
+
+        # Balance the heaps
+        if len(max_heap) > len(min_heap) + 1:
+            heapq.heappush(min_heap, -heapq.heappop(max_heap))
+        elif len(min_heap) > len(max_heap):
+            heapq.heappush(max_heap, -heapq.heappop(min_heap))
+
+    def _calculate_median(self, min_heap, max_heap):
+        if len(min_heap) == len(max_heap):
+            return (min_heap[0] - max_heap[0]) / 2.0
+        else:
+            return -max_heap[0]
+
+
 class KClosestPointToOrigin:
 
     def kClosestPointToOrigin(self, points: list, k: int) -> list:
@@ -151,7 +181,7 @@ class KClosestPointToOrigin:
         return res
 
     def getDistance(self, point: list) -> float:
-        return math.sqrt((point[0])**2 + (point[1])**2)
+        return math.sqrt((point[0]) ** 2 + (point[1]) ** 2)
 
 
 class MinHeap:
@@ -159,11 +189,12 @@ class MinHeap:
     Heaps always have the following condition:
     Given an array, if node= arr[i] then left child of node is at  arr[2*i+1] and right child at arr[2*i+2]
     """
-    def __init__(self, arr: list=None):
+
+    def __init__(self, arr: list = None):
         if not arr:
             self.heap = []
             return
-        start_idx = len(arr)//2 - 1  # Last non-leaf node
+        start_idx = len(arr) // 2 - 1  # Last non-leaf node
         for i in range(start_idx, 0, -1):  # Reverse level order traversal of heap
             self.heapify(arr, i)
 
@@ -186,8 +217,8 @@ class MinHeap:
             return None
 
         smallest = idx
-        left = 2*idx + 1
-        right = 2*idx + 2
+        left = 2 * idx + 1
+        right = 2 * idx + 2
 
         if left < len(arr) and arr[left] < arr[smallest]:  # If left is smaller than smallest
             smallest = left
@@ -216,7 +247,7 @@ class MinHeap:
             return None
         resp = self.heap.pop(0)
         arr = self.heap
-        for i in range(len(arr)//2 - 1, 0, -1):
+        for i in range(len(arr) // 2 - 1, 0, -1):
             arr = self.heapify(arr, i)
 
         self.heap = arr
@@ -229,16 +260,16 @@ class MinHeap:
         """
         self.heap.append(value)
 
-        last = len(self.heap)-1
+        last = len(self.heap) - 1
 
-        while self.heap[last] < self.heap[last//2]:  # While new node is smaller than parent
-            self.swap(last, last//2)  # Swap nodes
-            last = last//2  # Continue while loop
+        while self.heap[last] < self.heap[last // 2]:  # While new node is smaller than parent
+            self.swap(last, last // 2)  # Swap nodes
+            last = last // 2  # Continue while loop
 
 
 class MaxHeap:
 
-    def __init__(self, arr: list=None):
+    def __init__(self, arr: list = None):
         if not arr:
             self.heap = []
             return
@@ -254,8 +285,8 @@ class MaxHeap:
         if not arr:
             return None
         largest = idx
-        left = 2*idx+1
-        right = 2*idx+2
+        left = 2 * idx + 1
+        right = 2 * idx + 2
 
         if left < len(arr) and arr[left] > arr[largest]:
             largest = left
@@ -286,7 +317,7 @@ class MaxHeap:
         if not self.heap:
             return None
         resp = self.heap.pop(0)
-        self.heapify(self.heap, len(self.heap)-1)
+        self.heapify(self.heap, len(self.heap) - 1)
         return resp
 
     def insert(self, value: int):
@@ -295,11 +326,11 @@ class MaxHeap:
         :param value: value to be inserted
         """
         self.heap.append(value)
-        last = len(self.heap)-1
+        last = len(self.heap) - 1
 
-        while self.heap[last] > self.heap[last//2]:
-            self.swap(last, last//2)
-            last = last//2
+        while self.heap[last] > self.heap[last // 2]:
+            self.swap(last, last // 2)
+            last = last // 2
 
 
 def smallest_subset(s: list) -> list:
@@ -309,14 +340,15 @@ def smallest_subset(s: list) -> list:
     :return: smallest subset where sum is greater than rest elements sum
     """
     heapq.heapify(s)
-    res = deque([])
+    res = []
     for i in range(1, len(s)):
         hq = heapq.nlargest(i, s)
-        if sum(hq) > sum(heapq.nsmallest(len(s)-i, s)):
+        if sum(hq) > sum(heapq.nsmallest(len(s) - i, s)):
             while hq:
                 res.append(hq.pop())
-            return list(res)
+            return res
     return s
+
 
 def topKFrequentElementInArray(nums: list, k: int) -> list:
     """
@@ -326,7 +358,7 @@ def topKFrequentElementInArray(nums: list, k: int) -> list:
     :return: Kth most frequent elements
     """
     # Use hashmaps and priority queue (heap)
-    d = defaultdict(lambda: 0)
+    d = defaultdict(int)
     # Create map with occurences
     for num in nums:
         d[num] += 1
@@ -341,6 +373,7 @@ def topKFrequentElementInArray(nums: list, k: int) -> list:
     while heap:
         resp.append(heapq.heappop(heap)[1])
     return resp
+
 
 def lengthOfLongestSubStringwithoutRepeating(s: str) -> int:
     """
@@ -372,7 +405,3 @@ def lengthOfLongestSubStringwithoutRepeating(s: str) -> int:
         max_length = len(curr)
 
     return max_length
-
-
-
-

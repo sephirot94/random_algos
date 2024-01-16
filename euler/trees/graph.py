@@ -2,6 +2,87 @@ import sys
 from collections import defaultdict
 from heap.heapster import CustomHeap
 
+
+class RobotPath:
+    """Class for problems with robot in a 2D grid"""
+
+    def __init__(self, graph: list[list[int]]):
+        self.graph = graph
+
+    def validate(self, i: int, j: int):
+        return self.graph is not None and 0 <= i < len(self.graph) and 0 <= j < len(self.graph[i])
+
+    def dfs(self, visited: list, i: int, j: int):
+        if not self.validate(i, j):
+            return
+        visited[i][j] = True
+        if self.graph[i][j] == 1:
+            return
+        else:
+            self.dfs(visited, i+1, j)
+            self.dfs(visited, i, j+1)
+
+    def dfs_iterative(self, visited: list, i: int, j: int):
+        stack = [(i, j)]
+
+        while stack:
+            i, j = stack.pop()
+
+            if not self.validate(i, j) or visited[i][j]:
+                continue
+
+            visited[i][j] = True
+
+            if self.graph[i][j] == 1:
+                continue
+
+            stack.append((i + 1, j))
+            stack.append((i, j + 1))
+
+    def can_reach_end(self) -> bool:
+        """
+        Returns boolean indicating the end can be reached. The robot can move horizontally or vertically among the 0s,
+        but is blocked by 1s. The end node will always be a 0.
+        """
+        visited = [[False for _ in range(len(self.graph[i]))] for i in range(len(self.graph))]
+        self.dfs(visited, 0, 0)
+        return visited[-1][-1]
+
+    def number_of_moves(self) -> int:
+        """Returns the min number of moves required to reach end, and 0 if it is impossible"""
+        n, m = len(self.graph), len(self.graph[0])
+        dp = [[0 for _ in range(n)] for _ in range(m)]
+        visited = [[False for _ in range(n)] for _ in range(m)]
+        if n >= 0 and m >= 1 and self.graph[0][1] == 0:
+            dp[0][1] = 1
+        if n >= 1 and m >= 0 and self.graph[1][0] == 0:
+            dp[1][0] = 1
+        stack = [(0,0)]
+        while stack:
+            i, j = stack.pop()
+            if not self.validate(i, j) or visited[i][j]:
+                continue
+            visited[i][j] = True
+            if self.graph[i][j] == 1:
+                continue
+            if self.validate(i-1, j) and self.graph[i-1][j] != 1:
+                dp[i][j] = min(dp[i][j], dp[i-1][j] + 1) if dp[i][j] != 0 else dp[i-1][j] + 1
+                stack.append((i-1, j))
+            if self.validate(i, j-1) and self.graph[i][j-1] != 1:
+                dp[i][j] = min(dp[i][j], dp[i][j-1] + 1) if dp[i][j] != 0 else dp[i][j-1] + 1
+                stack.append((i, j-1))
+            if self.validate(i+1, j) and self.graph[i+1][j] != 1:
+                dp[i+1][j] = min(dp[i+1][j], dp[i][j] + 1) if dp[i+1][j] != 0 else dp[i][j] + 1
+                stack.append((i+1, j))
+            if self.validate(i, j+1) and self.graph[i][j+1] != 1:
+                dp[i][j+1] = min(dp[i][j+1], dp[i][j] + 1) if dp[i][j+1] != 0 else dp[i][j] + 1
+                stack.append((i, j+1))
+
+        return dp[-1][-1]
+
+
+
+
 class FindConnectedComponents:
 
     def __init__(self, V: int):
