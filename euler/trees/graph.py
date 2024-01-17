@@ -328,8 +328,8 @@ class CyclicDirGraph:
         self.graph = defaultdict(list)
         self.vtx = vertices
 
-    def addEdge(self, u, v):
-        self.graph[u].append(v)
+    def addEdge(self, v, e):
+        self.graph[v].append(e)
 
     def recursive_helper(self, v, visited, recStack):
         # Mark the current node as visited and add to recursion stack
@@ -907,3 +907,41 @@ class AStar:
     To approximate the shortest path in real-life situations, like- in maps, games where there can be many hindrances.
     We can consider a 2D Grid having several obstacles and we start from a source cell to reach towards a goal cell
     """
+
+class OscarGraph:
+    """Graph class to play around with dfs and bfs problems before interviews"""
+
+    def __init__(self, graph: dict[int, list]):
+        self.graph = graph
+
+    def add_edge(self, vertex: int, edge: int):
+        """Adds an edge to the graph. If it is a new Vertex, it adds it as well"""
+        if not self.graph.get(vertex, None):
+            self.graph[vertex] = [edge]
+        else:
+            self.graph[vertex].append(edge)
+
+    def bfs(self):
+        q = collections.deque([list(self.graph.keys())[0]])
+        visited = {vtx: False for vtx in self.graph.keys()}
+        while q:
+            vtx = q.popleft()
+            if visited[vtx]:
+                continue
+            visited[vtx] = True
+            for neighbour in self.graph[vtx]:
+                q.append(neighbour)
+
+
+    def is_cyclic_directed(self) -> bool:
+        """Checks whether the graph is cyclic"""
+        visited = {vtx: False for vtx in self.graph.keys()}
+        stack = [list(self.graph.keys())[0]]
+        while stack:
+            vtx = stack.pop()
+            if visited.get(vtx, None):
+                return True
+            visited[vtx] = True
+            for neighbour in self.graph[vtx]:
+                stack.append(neighbour)
+        return False

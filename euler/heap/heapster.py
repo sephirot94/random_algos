@@ -333,75 +333,89 @@ class MaxHeap:
             last = last // 2
 
 
-def smallest_subset(s: list) -> list:
-    """
-    Given an array of integer, return the smallest subset where sum(subset) > sum(rest_of_nums)
-    :param s: array of integers
-    :return: smallest subset where sum is greater than rest elements sum
-    """
-    heapq.heapify(s)
-    res = []
-    for i in range(1, len(s)):
-        hq = heapq.nlargest(i, s)
-        if sum(hq) > sum(heapq.nsmallest(len(s) - i, s)):
-            while hq:
-                res.append(hq.pop())
-            return res
-    return s
+class HeapProblems:
+    @staticmethod
+    def top_k_words(phrase: str, k: int) -> list[str]:
+        words = phrase.split(' ')
+        d = defaultdict(int)
+        for word in words:  # O(n) Time and O(n) Space, with n = len(phrase)
+            d[word] += 1
 
+        heap = []
+        for word, amount in d.items():  # O(m) Time and O(m) space, with m = number of unique words
+            heapq.heappush(heap, (amount, word))  # O(nlogn) time to form heap
 
-def topKFrequentElementInArray(nums: list, k: int) -> list:
-    """
-    Given an array of nums and integer k, return k most frequent items in descending order of frequency
-    :param nums: array of integers
-    :param k: integer representing Kth most frequent elements
-    :return: Kth most frequent elements
-    """
-    # Use hashmaps and priority queue (heap)
-    d = defaultdict(int)
-    # Create map with occurences
-    for num in nums:
-        d[num] += 1
-    heap = []
-    # Create heap
-    for value, count in d.items():
-        heapq.heappush(heap, (count, value))
-        if len(heap) > k:
-            heapq.heappop(heap)
+        return list(x[1] for x in heapq.nlargest(k, heap))
 
-    resp = []
-    while heap:
-        resp.append(heapq.heappop(heap)[1])
-    return resp
+    @staticmethod
+    def smallest_subset(s: list) -> list:
+        """
+        Given an array of integer, return the smallest subset where sum(subset) > sum(rest_of_nums)
+        :param s: array of integers
+        :return: smallest subset where sum is greater than rest elements sum
+        """
+        heapq.heapify(s)
+        res = []
+        for i in range(1, len(s)):
+            hq = heapq.nlargest(i, s)
+            if sum(hq) > sum(heapq.nsmallest(len(s) - i, s)):
+                while hq:
+                    res.append(hq.pop())
+                return res
+        return s
 
+    @staticmethod
+    def top_k_frequent_element_in_array(nums: list, k: int) -> list:
+        """
+        Given an array of nums and integer k, return k most frequent items in descending order of frequency
+        :param nums: array of integers
+        :param k: integer representing Kth most frequent elements
+        :return: Kth most frequent elements
+        """
+        # Use hashmaps and priority queue (heap)
+        d = defaultdict(int)
+        # Create map with occurences
+        for num in nums:
+            d[num] += 1
+        heap = []
+        # Create heap
+        for value, count in d.items():
+            heapq.heappush(heap, (count, value))
+            if len(heap) > k:
+                heapq.heappop(heap)
 
-def lengthOfLongestSubStringwithoutRepeating(s: str) -> int:
-    """
-    Given a string, return the size of the longest substring without repeating characters
-    """
-    # Base Case
-    if not s:
-        return 0
+        resp = []
+        while heap:
+            resp.append(heapq.heappop(heap)[1])
+        return resp
 
-    curr = ""
-    max_length = 0
+    def lengthOfLongestSubStringwithoutRepeating(self, s: str) -> int:
+        """
+        Given a string, return the size of the longest substring without repeating characters
+        """
+        # Base Case
+        if not s:
+            return 0
 
-    for letter in s:
-        # check if letter exists in substring
-        if letter in curr:
-            # check for a new max length
-            if len(curr) > max_length:
-                max_length = len(curr)
+        curr = ""
+        max_length = 0
 
-            # Since we found a repeated character, we need to calculate a new starting point for the current string.
-            # Remove everything up until the first occurence from the current string as soon as the second is found
-            new = curr.find(letter) + 1
-            curr = curr[new:]
+        for letter in s:
+            # check if letter exists in substring
+            if letter in curr:
+                # check for a new max length
+                if len(curr) > max_length:
+                    max_length = len(curr)
 
-        curr += letter
+                # Since we found a repeated character, we need to calculate a new starting point for the current string.
+                # Remove everything up until the first occurence from the current string as soon as the second is found
+                new = curr.find(letter) + 1
+                curr = curr[new:]
 
-    # Check final letter in case is non repeating
-    if len(curr) > max_length:
-        max_length = len(curr)
+            curr += letter
 
-    return max_length
+        # Check final letter in case is non repeating
+        if len(curr) > max_length:
+            max_length = len(curr)
+
+        return max_length

@@ -1,10 +1,11 @@
+import heapq
+
 from leet.playing import Play
 from leet.google import Google, Oscar
 from collections import defaultdict, Counter, deque
 from dynamic import dynamic
-from trees.graph import RobotPath
+from trees.graph import RobotPath, OscarGraph
 import re
-
 
 def predictPartyVictory(senate: str) -> str:
     radiant = deque()
@@ -35,12 +36,4 @@ def findPoisonedDuration(timeSeries: list[int], duration: int) -> int:
     return len(st)
 
 if __name__ == '__main__':
-    houses = [1,2,3,1]
-    graph = [
-        [0,0,1,0],
-        [0,1,0,0],
-        [0,1,1,0],
-        [1,0,0,0]
-    ]
-    robot = RobotPath(graph)
-    print(robot.min_number_moves())
+    pass

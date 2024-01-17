@@ -370,7 +370,7 @@ class Google:
         word_list = [word_list[i] for i in range(len(word_list) - 1, -1, -1)]
         return " ".join(word_list)
 
-    def room_scheduling(self, arr: list) -> int:
+    def room_scheduling(self, arr: list[tuple[int, int]]) -> int:
         """
         Returns the number of rooms required to hold meetings given a list of tuples (start, end)
         representing time intervals for lectures. The intervals may be overlapping.
@@ -396,11 +396,12 @@ class Google:
 
         return len(res)
 
-    def can_schedule_single_room(self, arr: list) -> bool:
+    def can_schedule_with_available_rooms(self, arr: list, rooms: int) -> bool:
         """
         Given a list of tuples (start, end), representing time intervals for lectures. The intervals may be overlapping.
         Returns whether we can schedule all of them in a single room.
         :param arr: list of tuples (start, end) with time intervals of meetings
+        :param rooms: integer indicating how many available rooms there are
         :return: boolean indicating whether we can fit all lectures in a single room
         """
         # Time complexity O(n*m) Where n = len(arr) and m = len(res)
@@ -417,9 +418,9 @@ class Google:
                     scheduled.insert(0, tuple)
                     new_room = False
                     break
-            if new_room:  # If i need a new room to hold te meeting
+            if new_room:  # Need a new room to hold te meeting
                 num_rooms += 1
-                if num_rooms > 1:
+                if num_rooms > rooms:
                     return False
         return True
 
@@ -427,19 +428,19 @@ class Google:
         """Returns a list with all the conflicting timeslots for scheduling rooms problem"""
         scheduler = [[arr[0]]]
         res = []
-        for tuple in arr[1:]:
+        for tpl in arr[1:]:
             new_room = True
             for scheduled in scheduler:
-                if scheduled[-1][1] <= tuple[0]:  # If the last end is smaller than new start
-                    scheduled.append(tuple)
+                if scheduled[-1][1] <= tpl[0]:  # If the last end is smaller than new start
+                    scheduled.append(tpl)
                     new_room = False
                     break
-                if scheduled[-1][0] >= tuple[1]:  # If the last start is after the new end
-                    scheduled.insert(0, tuple)
+                if scheduled[-1][0] >= tpl[1]:  # If the last start is after the new end
+                    scheduled.insert(0, tpl)
                     new_room = False
                     break
             if new_room:
-                res.append(tuple)
+                res.append(tpl)
         return res
 
     def room_scheduling_timelines(self, t1: list[tuple], t2: list[tuple]) -> list[tuple]:

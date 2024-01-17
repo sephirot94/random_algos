@@ -168,3 +168,29 @@ class PriorityQueue(object):
         except IndexError:
             print()
             exit()
+
+
+class CustomQueue:
+
+    def __init__(self, q: list=None):
+        if not q:
+            q = []
+        self.q = q
+        self.size = len(q)
+
+    def enqueue(self, elem):
+        self.q.append(elem)
+        self.size += 1
+
+    def dequeue(self):
+        if self.size > 0:
+            self.size -= 1
+            return self.q.pop(0)
+
+
+    def get(self, n: int) -> any:
+        if n > self.size:
+            return None
+        if -1*self.size <= n < 0:
+            return self.q[n]
+        return self.q[n-1]
