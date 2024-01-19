@@ -391,7 +391,7 @@ class Google:
                     scheduled.insert(0, tuple)
                     new_room = False
                     break
-            if new_room:  # If i need a new room to hold te meeting
+            if new_room:
                 res.append([tuple])
 
         return len(res)

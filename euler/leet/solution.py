@@ -413,6 +413,7 @@ class Solution:
         for price in prices[1:]:
             buy = max(buy, sell-price)
             sell = max(sell, price + buy - fee)
+        return sell
 
 
     def check_array_non_decreasing(self, l: list) -> bool:
@@ -485,18 +486,13 @@ class Solution:
         :param note: string containing note to be written
         :return: boolean indicating if it is possible to write note with words in magazine
         """
-        d = defaultdict(lambda: None)
-        mag = magazine.split(" ")
-        note = note.split(" ")
-        for word in mag:
-            exists = d[word]
-            if exists:
-                d[word] += 1
-            else:
-                d[word] = 1
-        for word in note:
-            exists = d[word]
-            if not exists or exists == 0:
+        d = defaultdict(int)
+        mag = magazine.split(" ")  # O(n) space, with n = number of words in magazine
+        note = note.split(" ")  # O(m) space, with m = number of words in note
+        for word in mag:  # O(n) time
+            d[word] += 1  # O(n) space
+        for word in note:  # O(m) Time
+            if not d[word]:
                 return False
             else:
                 d[word] -= 1
