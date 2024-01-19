@@ -84,3 +84,5 @@ def rob_houses_2(nums: list[int]) -> int:
     # Compare robbing from the first house to the second-to-last and second house to the last
     return max(simple_rob(nums[:-1]), simple_rob(nums[1:]))
 
+def rob_houses_3(nums: list[int]) -> int:
+    pass

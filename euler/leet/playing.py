@@ -1,4 +1,7 @@
 from collections import defaultdict
+from datetime import datetime, timedelta
+from typing import List
+import math
 
 
 class Play:
@@ -89,3 +92,122 @@ class Play:
                 can_pass_rows.append(i)
 
         return can_pass_rows, can_pass_columns
+
+
+class RobotSimulator:
+    """
+    A robot on an infinite XY-plane starts at point (0, 0) facing north.
+    The robot can receive a sequence of these three possible types of commands:
+    -2: Turn left 90 degrees.
+    -1: Turn right 90 degrees.
+    1 <= k <= 9: Move forward k units, one unit at a time.
+    Some of the grid squares are obstacles. The ith obstacle is at grid point obstacles[i] = (xi, yi).
+    If the robot runs into an obstacle, then it will instead stay in its current location and move on to the next command.
+    """
+
+    def __init__(self, obstacles: List[List[int]]):
+        self.obstacles = {(x[0], x[1]) for x in obstacles}
+        self.orientation = "north"
+        self.coordinate = (0,0)
+        self.map = {
+            "north": {
+                "left": "west",
+                "right": "east"
+            },
+            "south": {
+                "left": "east",
+                "right": "west"
+            },
+            "east": {
+                "left": "north",
+                "right": "south"
+            },
+            "west": {
+                "left": "south",
+                "right": "north"
+            }
+        }
+
+    def turn_right(self):
+        self.orientation = self.map[self.orientation]["right"]
+
+    def turn_left(self):
+        self.orientation = self.map[self.orientation]["left"]
+
+    def validate(self, point: tuple[int, int]) -> bool:
+        """Validate if next point in movement is an obstacle"""
+        x, y = point
+        if self.orientation == "north":
+            y += 1
+        elif self.orientation == "south":
+            y -= 1
+        elif self.orientation == "east":
+            x += 1
+        elif self.orientation == "west":
+            x -= 1
+        point = (x,y)
+        return point not in self.obstacles
+
+    def move(self, k: int):
+        """Move robot k units in the direction it is facing"""
+        x, y = self.coordinate
+        for _ in range(k):
+            if not self.validate((x,y)):
+                break
+            if self.orientation == "north":
+                y += 1
+            elif self.orientation == "south":
+                y -= 1
+            elif self.orientation == "east":
+                x += 1
+            elif self.orientation == "west":
+                x -= 1
+        self.coordinate = (x,y)
+
+def robot_sim(commands: List[int], obstacles: List[List[int]]) -> int:
+    """Return the maximum Euclidean distance that the robot ever gets from the origin squared"""
+    robot = RobotSimulator(obstacles)
+    m_distance = 0
+    for command in commands:
+        if command == -1:
+            robot.turn_right()
+        elif command == -2:
+            robot.turn_left()
+        else:
+            robot.move(command)
+        x, y = robot.coordinate
+        m_distance = max(m_distance, math.sqrt(x**2 + y**2))
+    return int(m_distance**2)
+
+class Subway:
+    """Handle subway checkin problem"""
+
+    def __init__(self):
+        self.tracker = defaultdict(lambda: None)
+
+    def __str__(self):
+        for name, time in self.tracker.items():
+            print(f'{name} checked in at {time}')
+
+    def check_in(self, name: str, time: datetime):
+        if self.validate(name, time):
+            self.tracker[name] = time
+            return "Accepted"
+        return "Rejected"
+
+    def validate(self, name: str, time: datetime) -> bool:
+        return not self.tracker[name] or self.tracker[name] + timedelta(minutes=5) <= time
+
+class TestSubway:
+
+    def __init__(self):
+        self.subway = Subway()
+
+    def test_subway(self):
+
+        assert self.subway.check_in("John", datetime(2020, 1, 1, 1, 0)) == "Accepted"
+        assert self.subway.check_in("Sally", datetime(2020, 1, 1, 1, 1)) == "Accepted"
+        assert self.subway.check_in("Ed", datetime(2020, 1, 1, 1, 2)) == "Accepted"
+        assert self.subway.check_in("John", datetime(2020, 1, 1, 1, 3)) == "Rejected"
+        assert self.subway.check_in("Sally", datetime(2020, 1, 1, 1, 6)) == "Accepted"
+        assert self.subway.check_in("Ed", datetime(2020, 1, 1, 1, 5)) == "Rejected"

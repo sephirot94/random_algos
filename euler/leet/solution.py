@@ -400,6 +400,21 @@ class Solution:
                 sell[i] = max(sell[i], x - buy[i])
         return sell[-1]
 
+    def stock_max_profit_5(self, prices: list[int], fee: int) -> int:
+        """
+        Finds the maximum profit you can achieve given an array prices and an integer fee representing a transaction fee.
+        You may complete as many transactions as you like, but you need to pay the transaction fee for each transaction.
+        You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
+        The transaction fee is only charged once for each stock purchase and sale.
+        """
+        s = len(prices)
+        if s <= 1: return 0
+        buy, sell = -prices[0], 0  # Negative for max comparison in first iteration
+        for price in prices[1:]:
+            buy = max(buy, sell-price)
+            sell = max(sell, price + buy - fee)
+
+
     def check_array_non_decreasing(self, l: list) -> bool:
         """
         Given an array of integers, return if it is possible to make it a non-decreasing array by modifying at most 1 element.

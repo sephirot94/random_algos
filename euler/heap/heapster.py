@@ -343,7 +343,9 @@ class HeapProblems:
 
         heap = []
         for word, amount in d.items():  # O(m) Time and O(m) space, with m = number of unique words
-            heapq.heappush(heap, (amount, word))  # O(nlogn) time to form heap
+            heap.append((amount, word))
+
+        heapq.heapify(heap)
 
         return list(x[1] for x in heapq.nlargest(k, heap))
 
