@@ -211,3 +211,52 @@ class TestSubway:
         assert self.subway.check_in("John", datetime(2020, 1, 1, 1, 3)) == "Rejected"
         assert self.subway.check_in("Sally", datetime(2020, 1, 1, 1, 6)) == "Accepted"
         assert self.subway.check_in("Ed", datetime(2020, 1, 1, 1, 5)) == "Rejected"
+
+class Visit:
+    def __init__(self, cost: int=0):
+        self.cost = cost
+
+class Member:
+    def __init__(self, visits: list[Visit]):
+        self.visits = visits
+        self.total_cost = sum(visit.cost for visit in self.visits)
+
+class OscarInterview:
+
+    def top_costly_members_threshold(self, members: List[Member], threshold: int) -> List[Member]:
+        """Returns the smallest amount of members in which the sum of costs are at least the threshold, given as a percentage"""
+        if not members:
+            return []
+        members = sorted(members, key=lambda member: member.total_cost, reverse=True)
+        total_cost = sum(member.total_cost for member in members)
+        curr_total_cost = 0
+        res = []
+        for member in members:
+            curr_total_cost += member.total_cost
+            res.append(member)
+            if curr_total_cost * 100 / total_cost >= threshold:
+                break
+        return res
+
+class TestOscarInterview:
+
+    def __init__(self):
+        visit1 = Visit(cost=100)
+        visit2 = Visit(cost=200)
+        visit3 = Visit(cost=300)
+        visit4 = Visit(cost=400)
+        visit5 = Visit(cost=500)
+
+        member1 = Member(visits=[visit1, visit3, visit5])
+        member2 = Member(visits=[visit2, visit4, visit5])
+        member3 = Member(visits=[visit5])
+
+        self.members = [member1, member2, member3]
+        self.bl = OscarInterview()
+
+    def test_costly_members_threshold(self):
+
+        assert len(self.bl.top_costly_members_threshold(self.members, 90)) == 3
+        assert len(self.bl.top_costly_members_threshold(self.members, 50)) == 2
+        assert len(self.bl.top_costly_members_threshold(self.members, 25)) == 1
+
