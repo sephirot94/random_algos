@@ -1,11 +1,11 @@
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
 
 
 FILL_THRESHOLD = 0.25  # Increasing may lead to missing slightly filled check boxes
 
 class CheckboxChecker:
+
     def __init__(self, image_path: str):
         # not the best for forward-compatibility, but for this project it's fine
         self.image_path = image_path
@@ -22,7 +22,6 @@ class CheckboxChecker:
             25, 10
         )
         return thresh
-
 
     def find_checkbox_contours(self, thresh_img):
         # Find contours from thresholded image
@@ -46,14 +45,12 @@ class CheckboxChecker:
                 
         return checkbox_contours
 
-
     def is_checkbox_filled(self, checkbox_roi, threshold=FILL_THRESHOLD):
         total_pixels = checkbox_roi.size
         filled_pixels = cv2.countNonZero(checkbox_roi)
         fill_ratio = filled_pixels / total_pixels
 
         return fill_ratio > threshold
-
 
     def display_image(self, image):
         plt.figure(figsize=(10, 10))
@@ -71,6 +68,7 @@ class CheckboxChecker:
 
         for (x, y, w, h) in checkbox_contours:
             # Crop the checkbox area from thresholded image to check if filled
+            # ROI stands for Region of Interest, or the portion in pixels that comprise the checkbox
             checkbox_roi = processed_image[y:y+h, x:x+w]
             filled = self.is_checkbox_filled(checkbox_roi)
             checkboxes_detected.append({

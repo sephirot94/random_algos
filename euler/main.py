@@ -46,65 +46,68 @@ class Connect4:
     def __init__(self, rows=6, cols=7):
         self.rows = rows
         self.cols = cols
-        self.current_player = PLAYER_1
-        self.winner = None
         self.board = [[0 for _ in range(cols)] for _ in range(rows)]
-    
-    def play(self, col: int) -> str:
-        if col < 0 or col > self.cols:
-            return "Invalid column"
+        self.winner = None
+        self.current_player = PLAYER_1
 
+    def play(self, col: int) -> str:
+
+        if col < 0 or col > self.cols:
+            return f"Invalid column, please select a column between 0-{self.cols-1}"
+        
         if self.winner:
-            return f"Game Over! Player {self.winner} has already won"
+            return f"Game Over! Player {self.winer} has already won"
         
         for row in reversed(range(self.rows)):
             if self.board[row][col] == 0:
                 self.board[row][col] = self.current_player
                 if self.check_winner(row, col):
                     self.winner = self.current_player
-                    return f"Player {self.winner} wins!"
+                    return f"Game Over! Player {self.winner} wins!"
                 self.current_player = PLAYER_2 if self.current_player == PLAYER_1 else PLAYER_1
                 return f"Player {self.current_player}'s turn"
-        return "Column already full, try a different column"
-
+        return "Column already full"
+    
     def check_winner(self, row: int, col: int) -> bool:
 
-        def count_line(delta_row: int, delta_column: int) -> int:
-            """Counts how many cells player has already filled in any direction"""
-            r, c = row + delta_row, col + delta_column
+        def count_tokens(delta_row: int, delta_col: int) -> int:
+            r, c = row + delta_row, col + delta_col
             count = 0
             while 0 <= r < self.rows and 0 <= c < self.cols and self.board[r][c] == self.current_player:
                 count += 1
                 r += delta_row
-                c += delta_column
+                c += delta_col
             return count
         
         directions = [
-            (0,1),
-            (1,0),
-            (1,1),
-            (1,-1),
+            (0, 1),
+            (1, 0),
+            (1, 1),
+            (1, -1),
         ]
 
         for dr, dc in directions:
-            total = 1 + count_line(dr, dc) + count_line(-dr, -dc)
+            total = 1 + count_tokens(dr, dc) + count_tokens(-dr, -dc)
             if total >= 4:
                 return True
+        
         return False
-
+    
     def print(self):
         for row in self.board:
             print(' '.join(str(cell) for cell in row))
         print("\n")
+            
 
 if __name__ == "__main__":
     game = Connect4()
+
     while not game.winner:
         game.print()
         try:
-            col = int(input(f"Player {game.current_player}, choose a column between 0-{game.cols-1}:"))
-            result = game.play(col)
-            print(result)
+            col = int(input(f"Player {game.current_player}, please choose a column between 0-{game.cols-1}:"))
+            turn = game.play(col)
+            print(turn)
         except ValueError:
-            print(f"Invalid column, please choose a number between 0-{game.cols-1}")
+            print(f"Please insert a valid number between o-{game.cols-1}")
     game.print()

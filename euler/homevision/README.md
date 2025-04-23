@@ -4,6 +4,7 @@ I made some decisions and assumptions that i would like to clarify briefly:
 2. Usage of Makefile: this tool allows for building and running quickly. It's true that we would most likely be using Docker and containers, even kubernetes and pods, to develop and release code to production, not a makefile with a venv and requirements file. However, for the sake of speed and reducing complexity in the design of this challenge, i decided to go with this alternative and leave Docker out of the picture.
 3. Not freezing dependency versions (Pipfile): the reasoning behind this is similar to the previous point, but if this is a small project to be handed in a matter of days, the risk of a new dependency version being released and breaking the solution is very low and can be ignored.
 4. Not using supervised machine learning: In an ideal world with a lot of data i could have created a model that detects a check box, both empty or checked, with some labeling and supervised training. However this would require a lot of data i do not possess for training. Fun fact, this project could be used for automatic labelling of data used for training.
+5. Usage of matplotlib for displaying result of program on input file.
 
 ### How to execute
 Open a terminal with the working directory being the root folder of this project and execute the following command:
@@ -13,3 +14,8 @@ To change input parameters, you will need to add a new image to the /images fold
 `input_image_path = "images/sample-section-mod.webp"`
 Change it to
 `input_image_path = "your/new/image/name"`
+
+### Documentation used
+Please refer to OpenCV Documentation to understand the usage of the library
+* OpenCV-Python Tutorials: https://docs.opencv.org/4.x/d6/d00/tutorial_py_root.html
+* OpenCV modules: https://docs.opencv.org/4.x/index.html
