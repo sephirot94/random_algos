@@ -1,6 +1,95 @@
+import collections
 import sys
 from collections import defaultdict
 from heap.heapster import CustomHeap
+
+
+class RobotPath:
+    """Class for problems with robot in a 2D grid"""
+
+    def __init__(self, graph: list[list[int]]):
+        self.graph = graph
+
+    def validate(self, i: int, j: int):
+        return self.graph is not None and 0 <= i < len(self.graph) and 0 <= j < len(self.graph[i])
+
+    def dfs(self, visited: list, i: int, j: int):
+        if not self.validate(i, j):
+            return
+        visited[i][j] = True
+        if self.graph[i][j] == 1:
+            return
+        else:
+            self.dfs(visited, i+1, j)
+            self.dfs(visited, i, j+1)
+
+    def dfs_iterative(self, visited: list):
+        stack = [(0,0)]
+
+        while stack:
+            i, j = stack.pop()
+
+            if not self.validate(i, j) or visited[i][j]:
+                continue
+
+            visited[i][j] = True
+
+            if self.graph[i][j] == 1:
+                continue
+
+            stack.append((i + 1, j))
+            stack.append((i, j + 1))
+
+    def bfs(self, visited: list):
+        q = collections.deque([(0,0)])
+        while q:
+            i, j = q.popleft()
+            if not self.validate(i, j) or visited[i][j]:
+                continue
+            visited[i][j] = True
+            if self.graph[i][j] == 1:
+                continue
+            if self.validate(i + 1, j):
+                q.append((i+1, j))
+            if self.validate(i, j+1):
+                q.append((i, j+1))
+
+    def can_traverse_bfs(self) -> bool:
+        """Returns whether the robot can traverse the graph"""
+        visited = [[False for _ in range(len(self.graph[i]))] for i in range(len(self.graph))]
+        self.bfs(visited)
+        return visited[-1][-1]
+
+
+    def min_number_moves(self) -> int:
+        """Shortest path, returns integer indicating minimum number of moves required to reach end"""
+        if not self.graph:
+            return 0
+        q = collections.deque([(0,0,0)])
+        n, m = len(self.graph), len(self.graph[0])
+        visited = [[False for _ in range(m)] for _ in range(n)]
+        while q:
+            i, j, move = q.popleft()
+            if not self.validate(i, j) or visited[i][j]:
+                continue
+            visited[i][j] = True
+            if self.graph[i][j] == 1:
+                continue
+            if i == n-1 and j == m-1:  # Handle end goal reached
+                return move
+            q.append((i+1, j, move+1))
+            q.append((i, j+1, move+1))
+        return 0  # End could not be reached
+
+
+    def can_reach_end(self) -> bool:
+        """
+        Returns boolean indicating the end can be reached. The robot can move horizontally or vertically among the 0s,
+        but is blocked by 1s. The end node will always be a 0.
+        """
+        visited = [[False for _ in range(len(self.graph[i]))] for i in range(len(self.graph))]
+        self.dfs(visited, 0, 0)
+        return visited[-1][-1]
 
 
 class FindConnectedComponents:
@@ -127,7 +216,7 @@ class CheckStronglyConnected:
 
     def transpose(self):
         """
-        Returns transponse (or reversed) graph
+        Returns transposed (or reversed) graph
         """
         transposed = CheckStronglyConnected(self.vertices)
         for i in self.graph:
@@ -193,8 +282,6 @@ class CheckStronglyConnected:
         return scc
 
 
-
-
 class GraphAdjMatrix:
     # A simple representation of graph using Adjacency Matrix
     def __init__(self, numvertex):
@@ -241,8 +328,8 @@ class CyclicDirGraph:
         self.graph = defaultdict(list)
         self.vtx = vertices
 
-    def addEdge(self, u, v):
-        self.graph[u].append(v)
+    def addEdge(self, v, e):
+        self.graph[v].append(e)
 
     def recursive_helper(self, v, visited, recStack):
         # Mark the current node as visited and add to recursion stack
@@ -765,7 +852,7 @@ class JobSequenceProblemDisjointSet:
             self.parent[s] = self.find(self.parent[s])
             return self.parent[s]
 
-        # Make us as parent of v
+        # Make u as parent of v
         def merge(self, u, v):
             # Update the greatest available
             # free slot to u
@@ -820,3 +907,41 @@ class AStar:
     To approximate the shortest path in real-life situations, like- in maps, games where there can be many hindrances.
     We can consider a 2D Grid having several obstacles and we start from a source cell to reach towards a goal cell
     """
+
+class OscarGraph:
+    """Graph class to play around with dfs and bfs problems before interviews"""
+
+    def __init__(self, graph: dict[int, list]):
+        self.graph = graph
+
+    def add_edge(self, vertex: int, edge: int):
+        """Adds an edge to the graph. If it is a new Vertex, it adds it as well"""
+        if not self.graph.get(vertex, None):
+            self.graph[vertex] = [edge]
+        else:
+            self.graph[vertex].append(edge)
+
+    def bfs(self):
+        q = collections.deque([list(self.graph.keys())[0]])
+        visited = {vtx: False for vtx in self.graph.keys()}
+        while q:
+            vtx = q.popleft()
+            if visited[vtx]:
+                continue
+            visited[vtx] = True
+            for neighbour in self.graph[vtx]:
+                q.append(neighbour)
+
+
+    def is_cyclic_directed(self) -> bool:
+        """Checks whether the graph is cyclic"""
+        visited = {vtx: False for vtx in self.graph.keys()}
+        stack = [list(self.graph.keys())[0]]
+        while stack:
+            vtx = stack.pop()
+            if visited.get(vtx, None):
+                return True
+            visited[vtx] = True
+            for neighbour in self.graph[vtx]:
+                stack.append(neighbour)
+        return False

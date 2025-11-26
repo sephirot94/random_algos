@@ -25,6 +25,20 @@ class Solution:
 
         return int(ans)
 
+    def longest_common_prefix(self, words: list[str]) -> str:
+        """
+        Find the longest common prefix string amongst an array of strings. 
+        If there is no common prefix, return an empty string
+        """""
+        if not words:
+            return ""
+        base = words[0]
+        for i in range(len(base)):
+            for word in words[1:]:
+                if i == len(word) or word[i] != base[i]:
+                    return base[:i]
+        return base
+
     def celebrity_finder(self, matrix: list) -> int:
         """
         Returns an integer indicating person which is known to all but does not know anyone at party.
@@ -326,27 +340,81 @@ class Solution:
         :param stocks: list containing stock prices
         :return: max gain of the day
         """
-        buy = 0
-        sell = 0
-        max_profit = -1
-        search_buy_candidate = True
-        for i, stock in enumerate(stocks):
-            if i+1 == len(stocks):
-                break
-            sell = stocks[i+1]
-            if search_buy_candidate:
-                buy = stock
-            if sell < buy:
-                search_buy_candidate = True
-                continue
-            else:
-                temp = sell - buy
-                if temp > max_profit:
-                    max_profit = temp
-                    search_buy_candidate = False
-
-
+        min_price = stocks[0]
+        max_profit = 0
+        for stock in stocks[1:]:
+            max_profit = max(max_profit, stock - min_price)
+            min_price = min(min_price, stock)
         return max_profit
+
+    def stock_max_profit_2(self, prices: list) -> int:
+        """
+        You are given an integer array prices where prices[i] is the price of a given stock on the ith day.
+        On each day, you may decide to buy and/or sell the stock. You can only hold at most one share of the stock at
+        any time. However, you can buy it then immediately sell it on the same day.
+        Find and return the maximum profit you can achieve.
+        :return: max gain of the day
+        """
+        profit_from_price_gain = 0
+        for idx in range(len(prices) - 1):
+            if prices[idx] < prices[idx + 1]:
+                profit_from_price_gain += (prices[idx + 1] - prices[idx])
+
+        return profit_from_price_gain
+
+    def stock_max_profit_3(self, prices: list) -> int:
+        """
+        You are given an array prices where prices[i] is the price of a given stock on the ith day.
+        Find the maximum profit you can achieve. You may complete at most two transactions.
+        Note: You may not engage in multiple transactions simultaneously
+        (i.e., you must sell the stock before you buy again).
+        :return: max gain of the day
+        """
+        buy, sell = [float("inf")] * 2, [0] * 2
+        for x in prices:
+            for i in range(2):
+                if i:
+                    buy[i] = min(buy[i], x - sell[i - 1])
+                else:
+                    buy[i] = min(buy[i], x)
+                sell[i] = max(sell[i], x - buy[i])
+        return sell[-1]
+
+    def stock_max_profit_4(self, prices: list, k: int) -> int:
+        """
+        You are given an array prices where prices[i] is the price of a given stock on the ith day.
+        Find the maximum profit you can achieve. You may complete at most K transactions.
+        Note: You may not engage in multiple transactions simultaneously
+        (i.e., you must sell the stock before you buy again).
+        :return: max gain of the day
+        """
+        if not prices or k <= 0:
+            return 0
+        buy, sell = [float("inf")] * k, [0] * k
+        for x in prices:
+            for i in range(2):
+                if i:
+                    buy[i] = min(buy[i], x - sell[i - 1])
+                else:
+                    buy[i] = min(buy[i], x)
+                sell[i] = max(sell[i], x - buy[i])
+        return sell[-1]
+
+    def stock_max_profit_5(self, prices: list[int], fee: int) -> int:
+        """
+        Finds the maximum profit you can achieve given an array prices and an integer fee representing a transaction fee.
+        You may complete as many transactions as you like, but you need to pay the transaction fee for each transaction.
+        You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
+        The transaction fee is only charged once for each stock purchase and sale.
+        """
+        s = len(prices)
+        if s <= 1: return 0
+        buy, sell = -prices[0], 0  # Negative for max comparison in first iteration
+        for price in prices[1:]:
+            buy = max(buy, sell-price)
+            sell = max(sell, price + buy - fee)
+        return sell
+
 
     def check_array_non_decreasing(self, l: list) -> bool:
         """
@@ -418,18 +486,13 @@ class Solution:
         :param note: string containing note to be written
         :return: boolean indicating if it is possible to write note with words in magazine
         """
-        d = defaultdict(lambda: None)
-        mag = magazine.split(" ")
-        note = note.split(" ")
-        for word in mag:
-            exists = d[word]
-            if exists:
-                d[word] += 1
-            else:
-                d[word] = 1
-        for word in note:
-            exists = d[word]
-            if not exists or exists == 0:
+        d = defaultdict(int)
+        mag = magazine.split(" ")  # O(n) space, with n = number of words in magazine
+        note = note.split(" ")  # O(m) space, with m = number of words in note
+        for word in mag:  # O(n) time
+            d[word] += 1  # O(n) space
+        for word in note:  # O(m) Time
+            if not d[word]:
                 return False
             else:
                 d[word] -= 1
@@ -1210,11 +1273,11 @@ class Solution:
         # of currPos node and increasing the count
         # by 1 and cost by graph[currPos][i] value
         for i in range(n):
-            if (v[i] == False and graph[currPos][i]):
+            if not v[i] and graph[currPos][i]:
                 # Mark as visited
                 v[i] = True
-                travelling_salesman_problem(graph, v, i, n, count + 1,
-                    cost + graph[currPos][i])
+                graph.travelling_salesman_problem(graph, v, i, n, count + 1,
+                                                  cost + graph[currPos][i])
 
                 # Mark ith node as unvisited
                 v[i] = False
@@ -1378,14 +1441,13 @@ class Solution:
         :param duration: array containing duration of each participant's lecture
         :return: max number of lectures that can occur in a single day
         """
-        # O(n) Time
+        # O(nlog(n)) Time
         ans = 0
 
-        # Sorting of meeting according to
-        # their finish time.
+        # Sorting of meeting according to their finish time.
         zipped = zip(arrival, duration)
         zipped = list(zipped)
-        zipped.sort(key=lambda x: x[0] + x[1])
+        zipped.sort(key=lambda x: x[0] + x[1])  # O(nlog(n))
 
         # Initially select first meeting
         ans += 1
@@ -1468,27 +1530,25 @@ class Solution:
 
             # If number is 0, we don't
             # multiply it with product.
-            if (arr[i] == 0):
-                count_zero = count_zero + 1
+            if arr[i] == 0:
+                count_zero += 1
                 continue
 
             # Count negatives and keep
             # track of maximum valued
             # negative.
-            if (arr[i] < 0):
-                count_neg = count_neg + 1
+            if arr[i] < 0:
+                count_neg += 1
                 max_neg = max(max_neg, arr[i])
 
             # Track minimum positive
             # number of array
-            if (arr[i] > 0):
+            if arr[i] > 0:
                 min_pos = min(min_pos, arr[i])
 
             prod = prod * arr[i]
 
-        # If there are all zeros
-        # or no negative number
-        # present
+        # If there are all zeros or no negative number present
         if count_zero == n or (count_neg == 0 and count_zero > 0):
             return 0
 

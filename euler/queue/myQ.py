@@ -1,3 +1,6 @@
+from typing import Any
+
+
 class MyCircularDeque:
 
     def __init__(self, k: int):
@@ -168,3 +171,50 @@ class PriorityQueue(object):
         except IndexError:
             print()
             exit()
+
+
+class CustomQueue:
+
+    def __init__(self, q: list=None):
+        self.q = q if q else []
+        self.size = len(self.q)
+
+    def enqueue(self, elem: Any):
+        self.q.append(elem)
+        self.size += 1
+
+    def dequeue(self) -> Any:
+        if self.size > 0:
+            self.size -= 1
+            return self.q.pop(0)
+
+
+    def get(self, n: int) -> Any:
+        if n > self.size:
+            raise IndexError("Index out of range")
+        if -1*self.size <= n < 0:
+            return self.q[n]
+        return self.q[n-1]
+
+
+class TestCustomQ:
+
+    def __init__(self):
+        self.q = CustomQueue()
+
+    def test_enqueue(self, elem: Any):
+        self.q.enqueue(elem)
+        assert self.q.size == 1
+        assert self.q[0] == elem
+
+    def test_dequeue(self):
+        if self.q.size > 0:
+            assert self.q.dequeue()
+        else:
+            assert not self.q.dequeue()
+
+    def test_get(self, n: int):
+        s = self.q.size
+        if not s: return
+
+

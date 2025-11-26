@@ -138,10 +138,9 @@ class Tree:
         """
         if root is None:
             return
-        stack = []
+        stack = [root]
         resp = []
-        stack.append(root)
-        while len(stack) > 0:
+        while stack:
             node = stack.pop()
             resp.append(node.val)
             if node.right:

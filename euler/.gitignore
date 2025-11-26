@@ -4,3 +4,6 @@ venv
 idea
 ./idea
 .idea/
+../.idea/
+.DS_STORE
+/.DS_STORE
